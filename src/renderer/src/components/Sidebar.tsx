@@ -60,8 +60,8 @@ const PROTOCOL_BADGE: Record<string, [string, string]> = {
 }
 
 export function ItemBadge({ item }: { item: PMItem }) {
-  if (item.relay) {
-    const [label, color] = PROTOCOL_BADGE[item.relay.protocol]
+  if (item.postgirl) {
+    const [label, color] = PROTOCOL_BADGE[item.postgirl.protocol]
     return (
       <span className="method-badge" style={{ color }}>
         {label}

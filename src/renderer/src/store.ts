@@ -68,7 +68,7 @@ interface State {
   modal: ModalState | null
 }
 
-const UI_KEY = 'relay.ui'
+const UI_KEY = 'postgirl.ui'
 
 const initial: State = {
   ready: false,
@@ -223,7 +223,7 @@ export const confirmDialog = (title: string, message: string, danger = false, ok
   openModal<boolean>('confirm', { title, message, danger, okLabel })
 
 export const toast = (message: string, kind: 'info' | 'error' = 'info') =>
-  window.dispatchEvent(new CustomEvent('relay-toast', { detail: { message, kind } }))
+  window.dispatchEvent(new CustomEvent('postgirl-toast', { detail: { message, kind } }))
 
 // ---------------- coleções ----------------
 
@@ -496,7 +496,7 @@ export function newItemFor(protocol: Protocol): PMItem {
   const names: Record<string, string> = { websocket: 'WebSocket', socketio: 'Socket.IO', mqtt: 'MQTT', grpc: 'gRPC' }
   return {
     ...newRequestItem(`Nova ${names[protocol]}`, { method: 'GET', url: { raw: defaults[protocol].url } }),
-    relay: { protocol, config: defaults[protocol] }
+    postgirl: { protocol, config: defaults[protocol] }
   } as PMItem
 }
 
@@ -564,7 +564,7 @@ export async function closeTab(id: string) {
     if (r === 'save' && !(await saveTab(id))) return
   }
   if (t.runId) api.cancel(t.runId)
-  if (t.draft?.relay) api.rt.disconnect(t.id)
+  if (t.draft?.postgirl) api.rt.disconnect(t.id)
   const idx = get().tabs.findIndex((x) => x.id === id)
   const tabs = get().tabs.filter((x) => x.id !== id)
   set({ tabs, activeTabId: get().activeTabId === id ? (tabs[Math.min(idx, tabs.length - 1)]?.id ?? null) : get().activeTabId })

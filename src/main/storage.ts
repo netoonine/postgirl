@@ -17,7 +17,7 @@ const HISTORY_LIMIT = 300
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json')
 
 const defaultSettings = (): Settings => ({
-  workspacePath: process.env.RELAY_USER_DATA ? path.join(process.env.RELAY_USER_DATA, 'workspace') : path.join(os.homedir(), 'Relay'),
+  workspacePath: process.env.POSTGIRL_USER_DATA ? path.join(process.env.POSTGIRL_USER_DATA, 'workspace') : path.join(os.homedir(), 'Postgirl'),
   followRedirects: true,
   strictSSL: false,
   timeoutMs: 0,
@@ -67,7 +67,7 @@ export function saveSettings(next: Partial<Settings>): Settings {
   return settings
 }
 
-/** Garante ids em todos os itens: o Relay identifica requisições e pastas por id. */
+/** Garante ids em todos os itens: o Postgirl identifica requisições e pastas por id. */
 function ensureIds(items: PMItem[] = []) {
   for (const it of items) {
     if (!it.id) it.id = randomUUID()

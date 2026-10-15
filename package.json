@@ -1,6 +1,6 @@
 {
-  "name": "relay",
-  "productName": "Relay",
+  "name": "postgirl",
+  "productName": "Postgirl",
   "version": "0.1.0",
   "description": "Cliente de APIs desktop compatível com coleções Postman",
   "main": "out/main/index.js",
@@ -59,8 +59,8 @@
     "electron-winstaller": false
   },
   "build": {
-    "appId": "app.relay.client",
-    "productName": "Relay",
+    "appId": "app.postgirl.client",
+    "productName": "Postgirl",
     "directories": {
       "output": "dist"
     },

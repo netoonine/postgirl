@@ -1,4 +1,4 @@
-# Relay
+# Postgirl
 
 Cliente de APIs desktop (macOS, Electron) compatível com coleções do Postman.
 
@@ -8,7 +8,7 @@ Cliente de APIs desktop (macOS, Electron) compatível com coleções do Postman.
 npm install
 npx install-electron   # baixa o binário do Electron (o npm bloqueia install scripts)
 npm run dev            # modo desenvolvimento
-npm run dist           # gera dist/mac-arm64/Relay.app
+npm run dist           # gera dist/mac-arm64/Postgirl.app
 ```
 
 ## O que tem
@@ -25,7 +25,7 @@ npm run dist           # gera dist/mac-arm64/Relay.app
 
 ## Onde ficam os dados
 
-Tudo em arquivos na pasta de trabalho (padrão `~/Relay`, trocável em Configurações):
+Tudo em arquivos na pasta de trabalho (padrão `~/Postgirl`, trocável em Configurações):
 
 ```
 collections/<nome>-<id>.postman_collection.json   # formato Postman v2.1, abre no Postman
@@ -42,6 +42,6 @@ A pasta pode ser versionada com git. Cuidado: valores de ambiente marcados como 
 - `src/main`: processo principal. `http.ts` executa requisições e o Runner com o `postman-runtime` (Apache-2.0), `realtime.ts` cuida de WebSocket/Socket.IO/MQTT/gRPC, `storage.ts` lê e grava a pasta de trabalho.
 - `src/preload`: ponte IPC exposta como `window.api`.
 - `src/renderer`: interface React. O estado fica em `store.ts` (zustand).
-- `src/shared/types.ts`: tipos compartilhados (schema Postman Collection v2.1 + extensão `relay` para protocolos em tempo real).
+- `src/shared/types.ts`: tipos compartilhados (schema Postman Collection v2.1 + extensão `postgirl` para protocolos em tempo real).
 
 A interface é código próprio. Do ecossistema Postman só são usadas as bibliotecas open source publicadas no npm (`postman-runtime`, `postman-collection`, `postman-code-generators`, `openapi-to-postmanv2`, `curl-to-postmanv2`, `postman-collection-transformer`).

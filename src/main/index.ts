@@ -18,7 +18,7 @@ function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 600,
-    title: 'Relay',
+    title: 'Postgirl',
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 14, y: 14 },
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#1b1b1f' : '#ffffff',
@@ -168,9 +168,9 @@ function registerIpc() {
   ipcMain.handle('rt:disconnect', (_e, connId: string) => rt.disconnect(connId))
 }
 
-app.setName('Relay')
+app.setName('Postgirl')
 // pasta de dados alternativa (testes automatizados, perfis separados)
-if (process.env.RELAY_USER_DATA) app.setPath('userData', process.env.RELAY_USER_DATA)
+if (process.env.POSTGIRL_USER_DATA) app.setPath('userData', process.env.POSTGIRL_USER_DATA)
 app.whenReady().then(() => {
   nativeTheme.themeSource = storage.loadWorkspace().settings.theme
   registerIpc()

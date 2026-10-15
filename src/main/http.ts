@@ -23,7 +23,7 @@ const runtime = require('postman-runtime')
 const sdk = require('postman-collection')
 
 const activeRuns = new Map<string, any>()
-const USER_AGENT = `Relay/${app.getVersion()}`
+const USER_AGENT = `Postgirl/${app.getVersion()}`
 
 /**
  * O editor guarda a URL como `raw` + lista `query` (que inclui parâmetros desativados).

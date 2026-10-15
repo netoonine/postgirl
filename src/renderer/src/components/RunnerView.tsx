@@ -63,7 +63,7 @@ export function RunnerView({ tab }: { tab: Tab }) {
   if (!col) return <div className="empty-hint">Coleção não encontrada.</div>
 
   let requestCount = 0
-  walk(folder ? folder.item || [] : col.item, (it) => !it.item && !it.relay && requestCount++)
+  walk(folder ? folder.item || [] : col.item, (it) => !it.item && !it.postgirl && requestCount++)
 
   const start = () => {
     runId.current = uid()

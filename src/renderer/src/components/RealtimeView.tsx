@@ -53,8 +53,8 @@ const kvToObj = (rows: KV[] = [], vars: Map<string, ResolvedVar>) =>
 
 export function RealtimeView({ tab }: { tab: Tab }) {
   const draft = tab.draft!
-  const protocol = draft.relay!.protocol
-  const cfg = draft.relay!.config
+  const protocol = draft.postgirl!.protocol
+  const cfg = draft.postgirl!.config
   const conn = useRt((s) => s[tab.id]) || { status: 'idle', messages: [] }
   const vars = useVars(tab.collectionId)
   const { col } = useLocation(tab)
@@ -63,7 +63,7 @@ export function RealtimeView({ tab }: { tab: Tab }) {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({})
   const [loadingMethods, setLoadingMethods] = useState(false)
 
-  const set = (p: Record<string, any>) => updateDraft(tab.id, (d) => Object.assign(d.relay!.config, p))
+  const set = (p: Record<string, any>) => updateDraft(tab.id, (d) => Object.assign(d.postgirl!.config, p))
   const r = (s: string) => resolveVars(s || '', vars)
   const live = conn.status === 'connected' || conn.status === 'connecting'
 
@@ -197,7 +197,7 @@ export function RealtimeView({ tab }: { tab: Tab }) {
             <VarInput
               value={cfg.url}
               placeholder={protocol === 'grpc' ? 'host:porta' : protocol === 'mqtt' ? 'mqtt://host:1883' : 'wss://host/caminho'}
-              onChange={(url) => updateDraft(tab.id, (d) => ((d.relay!.config.url = url), (d.request!.url = { raw: url })))}
+              onChange={(url) => updateDraft(tab.id, (d) => ((d.postgirl!.config.url = url), (d.request!.url = { raw: url })))}
               onEnter={() => (protocol === 'grpc' ? invoke() : !live && connect())}
             />
           </div>

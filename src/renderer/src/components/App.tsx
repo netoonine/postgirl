@@ -40,8 +40,8 @@ function Toasts() {
       setList((l) => [...l, { id, message, kind }])
       setTimeout(() => setList((l) => l.filter((t) => t.id !== id)), kind === 'error' ? 6000 : 2600)
     }
-    window.addEventListener('relay-toast', on)
-    return () => window.removeEventListener('relay-toast', on)
+    window.addEventListener('postgirl-toast', on)
+    return () => window.removeEventListener('postgirl-toast', on)
   }, [])
   return (
     <div className="toasts">
@@ -153,7 +153,7 @@ function Welcome() {
 function Workarea() {
   const tab = useStore((s) => s.tabs.find((t) => t.id === s.activeTabId))
   let content: React.ReactNode = <Welcome />
-  if (tab?.kind === 'request') content = tab.draft?.relay ? <RealtimeView key={tab.id} tab={tab} /> : <RequestView key={tab.id} tab={tab} />
+  if (tab?.kind === 'request') content = tab.draft?.postgirl ? <RealtimeView key={tab.id} tab={tab} /> : <RequestView key={tab.id} tab={tab} />
   if (tab?.kind === 'collection' || tab?.kind === 'folder') content = <CollectionView key={tab.id} tab={tab} />
   if (tab?.kind === 'environment') content = <EnvironmentView key={tab.id} tab={tab} />
   if (tab?.kind === 'globals') content = <GlobalsView />
@@ -196,7 +196,7 @@ export default function App() {
     const keys = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         const t = useStore.getState().tabs.find((x) => x.id === active())
-        if (t?.kind === 'request' && !t.draft?.relay) {
+        if (t?.kind === 'request' && !t.draft?.postgirl) {
           e.preventDefault()
           sendTab(t.id)
         }
@@ -217,7 +217,7 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <span className="brand">
-          <Zap size={16} color="var(--accent)" /> Relay
+          <Zap size={16} color="var(--accent)" /> Postgirl
         </span>
         <button
           className="btn sm"
