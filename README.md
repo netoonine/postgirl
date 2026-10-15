@@ -1,3 +1,5 @@
+<p align="center"><img src="resources/brand/logo-256.png" width="128" alt="Postgirl"></p>
+
 # Postgirl
 
 Cliente de APIs desktop (macOS, Electron) compatível com coleções do Postman.
@@ -36,6 +38,10 @@ history.json
 ```
 
 A pasta pode ser versionada com git. Cuidado: valores de ambiente marcados como secretos são só mascarados na tela e ficam gravados nos arquivos.
+
+## Marca
+
+`resources/brand/` tem o logo recortado (`logo.png`, `logo-256.png`, `logo-64.png`), o ícone do macOS (`icon-1024.png` e `icon.icns`, usado pelo `npm run dist`). `resources/logo-sugestoes/` guarda as três propostas originais geradas com IA.
 
 ## Arquitetura
 

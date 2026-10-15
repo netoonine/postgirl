@@ -30,6 +30,8 @@ import { RunnerView } from './RunnerView'
 import { Sidebar } from './Sidebar'
 import { TabsBar } from './TabsBar'
 import { useMenu } from './ui'
+import logo64 from '../assets/logo-64.png'
+import logo256 from '../assets/logo-256.png'
 
 function Toasts() {
   const [list, setList] = useState<{ id: number; message: string; kind: string }[]>([])
@@ -133,6 +135,7 @@ function Welcome() {
   ]
   return (
     <div className="welcome">
+      <img src={logo256} width={88} height={88} alt="Postgirl" />
       <div style={{ fontSize: 20, fontWeight: 650, color: 'var(--fg)' }}>Nova requisição</div>
       <div className="welcome-grid">
         {cards.map((c) => (
@@ -217,7 +220,7 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <span className="brand">
-          <Zap size={16} color="var(--accent)" /> Postgirl
+          <img src={logo64} width={20} height={20} alt="" /> Postgirl
         </span>
         <button
           className="btn sm"

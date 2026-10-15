@@ -172,6 +172,9 @@ app.setName('Postgirl')
 // pasta de dados alternativa (testes automatizados, perfis separados)
 if (process.env.POSTGIRL_USER_DATA) app.setPath('userData', process.env.POSTGIRL_USER_DATA)
 app.whenReady().then(() => {
+  // no app empacotado o ícone vem do .icns; em dev o Dock mostraria o do Electron
+  const devIcon = path.join(app.getAppPath(), 'resources/brand/icon-1024.png')
+  if (!app.isPackaged && fs.existsSync(devIcon)) app.dock?.setIcon(devIcon)
   nativeTheme.themeSource = storage.loadWorkspace().settings.theme
   registerIpc()
   buildMenu()

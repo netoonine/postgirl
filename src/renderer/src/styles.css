@@ -120,6 +120,7 @@ pre {
 .app {
   display: grid;
   grid-template-rows: 44px 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
 }
 
@@ -144,6 +145,8 @@ pre {
   gap: 6px;
 }
 .topbar .ws-path {
+  min-width: 0;
+  flex-shrink: 1;
   color: var(--fg-muted);
   font-size: 12px;
   -webkit-app-region: drag;
