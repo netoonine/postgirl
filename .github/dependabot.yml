@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # versões major mudam o compilador/Chromium: atualizar de propósito, não por bot
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: electron
+        update-types: ['version-update:semver-major']
     groups:
       codemirror:
         patterns: ['@codemirror/*', '@uiw/*']
