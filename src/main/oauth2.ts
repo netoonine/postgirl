@@ -77,8 +77,7 @@ async function tokenRequest(c: OAuth2Config, params: Record<string, string>): Pr
 export async function getToken(c: OAuth2Config): Promise<OAuth2Token> {
   try {
     if (c.grant_type === 'client_credentials') return await tokenRequest(c, { grant_type: 'client_credentials' })
-    if (c.grant_type === 'password')
-      return await tokenRequest(c, { grant_type: 'password', username: c.username || '', password: c.password || '' })
+    if (c.grant_type === 'password') return await tokenRequest(c, { grant_type: 'password', username: c.username || '', password: c.password || '' })
 
     const redirect = c.redirect_uri || 'https://oauth.pstmn.io/v1/callback'
     const state = c.state || crypto.randomBytes(8).toString('hex')

@@ -7,6 +7,7 @@ import type {
   HttpResult,
   ImportResult,
   KV,
+  MockEvent,
   PMAuth,
   PMCollection,
   PMRequest,
@@ -67,6 +68,14 @@ interface Api {
   readText(path: string): Promise<string>
   pathForFile(f: File): string
   onMenu(cb: (id: string) => void): () => void
+  onWorkspaceChanged(cb: (files: string[]) => void): () => void
+  mock: {
+    start(c: PMCollection, port: number): Promise<{ port: number; routes: number }>
+    update(c: PMCollection): Promise<void>
+    stop(collectionId: string): Promise<void>
+    status(): Promise<{ collectionId: string; port: number; routes: number }[]>
+    onEvent(cb: (e: MockEvent) => void): () => void
+  }
   rt: {
     ws(o: { connId: string; url: string; headers: Record<string, string>; protocols?: string[] }): Promise<void>
     io(o: { connId: string; url: string; path?: string; headers: Record<string, string>; auth?: string; events: string[] }): Promise<void>

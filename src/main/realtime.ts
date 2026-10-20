@@ -70,10 +70,7 @@ export function wsConnect(o: { connId: string; url: string; headers: Record<stri
 
 // ---------------- Socket.IO ----------------
 
-export function ioConnect(
-  o: { connId: string; url: string; path?: string; headers: Record<string, string>; auth?: string; events: string[] },
-  emit: Emit
-) {
+export function ioConnect(o: { connId: string; url: string; path?: string; headers: Record<string, string>; auth?: string; events: string[] }, emit: Emit) {
   disconnect(o.connId)
   emit({ connId: o.connId, type: 'status', status: 'connecting' })
   let auth: any
@@ -97,9 +94,7 @@ export function ioConnect(
     emit({ connId: o.connId, type: 'status', status: 'disconnected', detail: reason })
   })
   // escuta todos os eventos; a lista `events` existe só para documentar o que é esperado
-  socket.onAny((event, ...args) =>
-    emit({ connId: o.connId, type: 'message', direction: 'in', event, data: args.map(stringify).join('\n'), at: Date.now() })
-  )
+  socket.onAny((event, ...args) => emit({ connId: o.connId, type: 'message', direction: 'in', event, data: args.map(stringify).join('\n'), at: Date.now() }))
   conns.set(o.connId, {
     close: () => socket.disconnect(),
     send: (data, opts: { event: string; json?: boolean; ack?: boolean }) => {
@@ -127,7 +122,15 @@ export function ioConnect(
 // ---------------- MQTT ----------------
 
 export function mqttConnect(
-  o: { connId: string; url: string; clientId?: string; username?: string; password?: string; subscriptions: { topic: string; qos: 0 | 1 | 2 }[]; version?: 4 | 5 },
+  o: {
+    connId: string
+    url: string
+    clientId?: string
+    username?: string
+    password?: string
+    subscriptions: { topic: string; qos: 0 | 1 | 2 }[]
+    version?: 4 | 5
+  },
   emit: Emit
 ) {
   disconnect(o.connId)

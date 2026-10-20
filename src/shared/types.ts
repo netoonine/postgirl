@@ -109,14 +109,51 @@ export interface HistoryEntry {
   request: PMRequest
 }
 
-export interface Settings {
-  workspacePath: string
+export interface ProxySettings {
+  mode: 'off' | 'system' | 'custom'
+  /** ex.: http://proxy.empresa:3128 ou socks5://127.0.0.1:1080 */
+  url: string
+  /** hosts sem proxy, separados por vírgula (aceita *.dominio.com) */
+  bypass: string
+  username: string
+  password: string
+}
+
+export interface ClientCert {
+  id: string
+  /** host, ex.: api.empresa.com ou *.empresa.com */
+  host: string
+  certPath: string
+  keyPath: string
+  pfxPath: string
+  passphrase: string
+}
+
+/** O que o motor HTTP precisa saber; vale para o app e para a CLI. */
+export interface NetworkSettings {
   followRedirects: boolean
   strictSSL: boolean
   timeoutMs: number // 0 = sem limite
   maxResponseMB: number
+  proxy: ProxySettings
+  caCertPath: string
+  clientCerts: ClientCert[]
+}
+
+export interface Settings extends NetworkSettings {
+  workspacePath: string
   theme: 'system' | 'light' | 'dark'
   layout: 'vertical' | 'horizontal'
+}
+
+export const DEFAULT_NETWORK: NetworkSettings = {
+  followRedirects: true,
+  strictSSL: false,
+  timeoutMs: 0,
+  maxResponseMB: 50,
+  proxy: { mode: 'off', url: '', bypass: 'localhost, 127.0.0.1', username: '', password: '' },
+  caCertPath: '',
+  clientCerts: []
 }
 
 export interface Workspace {
@@ -197,7 +234,21 @@ export interface RunnerOptions {
 
 export type RunnerEvent =
   | { runId: string; type: 'start'; total: number }
-  | { runId: string; type: 'item'; iteration: number; itemId: string; name: string; method: string; url: string; code?: number; status?: string; time?: number; size?: number; tests: TestResult[]; error?: string }
+  | {
+      runId: string
+      type: 'item'
+      iteration: number
+      itemId: string
+      name: string
+      method: string
+      url: string
+      code?: number
+      status?: string
+      time?: number
+      size?: number
+      tests: TestResult[]
+      error?: string
+    }
   | { runId: string; type: 'console'; entry: ConsoleEntry }
   | { runId: string; type: 'done'; error?: string; environment?: EnvValue[]; globals?: EnvValue[]; collectionVariables?: KV[] }
 
@@ -220,3 +271,18 @@ export type RealtimeEvent =
   | { connId: string; type: 'status'; status: 'connecting' | 'connected' | 'disconnected' | 'error'; detail?: string }
   | { connId: string; type: 'message'; direction: 'in' | 'out'; event?: string; topic?: string; data: string; at: number; binary?: boolean }
   | { connId: string; type: 'grpc-end'; status: string; code: number; metadata?: Record<string, string>; trailers?: Record<string, string>; time: number }
+
+// --- mock server ---
+
+export interface MockLogEntry {
+  at: number
+  method: string
+  path: string
+  code: number
+  example?: string
+  time: number
+}
+
+export type MockEvent =
+  | { collectionId: string; type: 'status'; running: boolean; port?: number; error?: string; routes?: number }
+  | { collectionId: string; type: 'request'; entry: MockLogEntry }

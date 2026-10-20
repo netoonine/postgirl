@@ -38,14 +38,35 @@ const FIELDS: Record<string, Field[]> = {
   apikey: [
     { key: 'key', label: 'Chave' },
     { key: 'value', label: 'Valor' },
-    { key: 'in', label: 'Enviar em', kind: 'select', options: [['header', 'Header'], ['query', 'Query params']] }
+    {
+      key: 'in',
+      label: 'Enviar em',
+      kind: 'select',
+      options: [
+        ['header', 'Header'],
+        ['query', 'Query params']
+      ]
+    }
   ],
   jwt: [
-    { key: 'algorithm', label: 'Algoritmo', kind: 'select', options: ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'PS256', 'PS384', 'PS512', 'ES256', 'ES384', 'ES512'].map((a) => [a, a]) },
+    {
+      key: 'algorithm',
+      label: 'Algoritmo',
+      kind: 'select',
+      options: ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 'PS256', 'PS384', 'PS512', 'ES256', 'ES384', 'ES512'].map((a) => [a, a])
+    },
     { key: 'secret', label: 'Segredo / chave privada', kind: 'textarea' },
     { key: 'isSecretBase64Encoded', label: 'Segredo em Base64', kind: 'bool' },
     { key: 'payload', label: 'Payload (JSON)', kind: 'textarea' },
-    { key: 'addTokenTo', label: 'Enviar em', kind: 'select', options: [['header', 'Header'], ['queryParam', 'Query param']] },
+    {
+      key: 'addTokenTo',
+      label: 'Enviar em',
+      kind: 'select',
+      options: [
+        ['header', 'Header'],
+        ['queryParam', 'Query param']
+      ]
+    },
     { key: 'headerPrefix', label: 'Prefixo do header', placeholder: 'Bearer', advanced: true },
     { key: 'queryParamKey', label: 'Nome do query param', placeholder: 'token', advanced: true },
     { key: 'header', label: 'Headers JWT (JSON)', kind: 'textarea', advanced: true }
@@ -55,14 +76,25 @@ const FIELDS: Record<string, Field[]> = {
     { key: 'password', label: 'Senha' },
     { key: 'realm', label: 'Realm', advanced: true },
     { key: 'nonce', label: 'Nonce', advanced: true },
-    { key: 'algorithm', label: 'Algoritmo', kind: 'select', options: ['MD5', 'MD5-sess', 'SHA-256', 'SHA-256-sess', 'SHA-512-256', 'SHA-512-256-sess'].map((a) => [a, a]), advanced: true },
+    {
+      key: 'algorithm',
+      label: 'Algoritmo',
+      kind: 'select',
+      options: ['MD5', 'MD5-sess', 'SHA-256', 'SHA-256-sess', 'SHA-512-256', 'SHA-512-256-sess'].map((a) => [a, a]),
+      advanced: true
+    },
     { key: 'qop', label: 'qop', advanced: true },
     { key: 'nonceCount', label: 'Nonce count', advanced: true },
     { key: 'clientNonce', label: 'Client nonce', advanced: true },
     { key: 'opaque', label: 'Opaque', advanced: true }
   ],
   oauth1: [
-    { key: 'signatureMethod', label: 'Método de assinatura', kind: 'select', options: ['HMAC-SHA1', 'HMAC-SHA256', 'HMAC-SHA512', 'RSA-SHA1', 'RSA-SHA256', 'RSA-SHA512', 'PLAINTEXT'].map((a) => [a, a]) },
+    {
+      key: 'signatureMethod',
+      label: 'Método de assinatura',
+      kind: 'select',
+      options: ['HMAC-SHA1', 'HMAC-SHA256', 'HMAC-SHA512', 'RSA-SHA1', 'RSA-SHA256', 'RSA-SHA512', 'PLAINTEXT'].map((a) => [a, a])
+    },
     { key: 'consumerKey', label: 'Consumer key' },
     { key: 'consumerSecret', label: 'Consumer secret' },
     { key: 'token', label: 'Access token' },
@@ -79,7 +111,15 @@ const FIELDS: Record<string, Field[]> = {
   hawk: [
     { key: 'authId', label: 'Hawk Auth ID' },
     { key: 'authKey', label: 'Hawk Auth Key' },
-    { key: 'algorithm', label: 'Algoritmo', kind: 'select', options: [['sha256', 'sha256'], ['sha1', 'sha1']] },
+    {
+      key: 'algorithm',
+      label: 'Algoritmo',
+      kind: 'select',
+      options: [
+        ['sha256', 'sha256'],
+        ['sha1', 'sha1']
+      ]
+    },
     { key: 'user', label: 'Usuário', advanced: true },
     { key: 'nonce', label: 'Nonce', advanced: true },
     { key: 'extraData', label: 'ext', advanced: true },
@@ -113,7 +153,15 @@ const FIELDS: Record<string, Field[]> = {
   ],
   oauth2: [
     { key: 'accessToken', label: 'Access token' },
-    { key: 'addTokenTo', label: 'Enviar em', kind: 'select', options: [['header', 'Header'], ['queryParams', 'Query params']] },
+    {
+      key: 'addTokenTo',
+      label: 'Enviar em',
+      kind: 'select',
+      options: [
+        ['header', 'Header'],
+        ['queryParams', 'Query params']
+      ]
+    },
     { key: 'headerPrefix', label: 'Prefixo do header', placeholder: 'Bearer' }
   ]
 }
@@ -141,7 +189,15 @@ const OAUTH2_CONFIG: Field[] = [
   { key: 'state', label: 'State' },
   { key: 'username', label: 'Usuário' },
   { key: 'password', label: 'Senha' },
-  { key: 'client_authentication', label: 'Credenciais do cliente', kind: 'select', options: [['header', 'Basic Auth header'], ['body', 'No corpo']] }
+  {
+    key: 'client_authentication',
+    label: 'Credenciais do cliente',
+    kind: 'select',
+    options: [
+      ['header', 'Basic Auth header'],
+      ['body', 'No corpo']
+    ]
+  }
 ]
 
 const DEFAULTS: Record<string, Record<string, any>> = {
@@ -238,9 +294,7 @@ export function AuthEditor({
             ))}
           </select>
         </div>
-        <p className="hint">
-          A autenticação é aplicada na hora do envio. Use {'{{variaveis}}'} para não deixar segredos gravados na coleção.
-        </p>
+        <p className="hint">A autenticação é aplicada na hora do envio. Use {'{{variaveis}}'} para não deixar segredos gravados na coleção.</p>
       </div>
       <div>
         {cur.type === 'inherit' && (

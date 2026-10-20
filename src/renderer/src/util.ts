@@ -1,5 +1,6 @@
 import type { EnvValue, KV, PMAuth, PMCollection, PMEvent, PMItem, PMRequest, PMUrl } from '@shared/types'
 import { COLLECTION_SCHEMA } from '@shared/types'
+export { parseCsv } from '@shared/csv'
 
 export const uid = () => crypto.randomUUID()
 export const clone = <T>(v: T): T => structuredClone(v)
@@ -286,40 +287,6 @@ export function bulkToKv(text: string, prev: KV[]): KV[] {
       const old = prev.find((p) => p.key === key)
       return { ...old, key, value, disabled: disabled || undefined }
     })
-}
-
-export function parseCsv(text: string): Record<string, string>[] {
-  const rows: string[][] = []
-  let row: string[] = []
-  let cell = ''
-  let quoted = false
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]
-    if (quoted) {
-      if (ch === '"' && text[i + 1] === '"') {
-        cell += '"'
-        i++
-      } else if (ch === '"') quoted = false
-      else cell += ch
-    } else if (ch === '"') quoted = true
-    else if (ch === ',') {
-      row.push(cell)
-      cell = ''
-    } else if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && text[i + 1] === '\n') i++
-      row.push(cell)
-      rows.push(row)
-      row = []
-      cell = ''
-    } else cell += ch
-  }
-  if (cell || row.length) {
-    row.push(cell)
-    rows.push(row)
-  }
-  const [head, ...rest] = rows.filter((r) => r.some((c) => c !== ''))
-  if (!head) return []
-  return rest.map((r) => Object.fromEntries(head.map((h, i) => [h.trim(), r[i] ?? ''])))
 }
 
 export function timeAgo(ts: number) {

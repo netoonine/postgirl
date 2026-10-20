@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight, Copy, Folder, Library, Trash2 } from 'lucide-react'
-import type { CodegenLanguage, CookieInfo, ImportResult, PMItem } from '@shared/types'
+import type { ClientCert, CodegenLanguage, CookieInfo, ImportResult, PMItem, Settings } from '@shared/types'
 import { api } from '../api'
 import {
   addCollection,
@@ -17,7 +17,7 @@ import {
 } from '../store'
 import { effectiveAuth, findItem } from '../util'
 import { CodeEditor } from './CodeEditor'
-import { Modal } from './ui'
+import { Modal, SubTabs } from './ui'
 
 function PromptModal({ title, value, label }: { title: string; value: string; label?: string }) {
   const [v, setV] = useState(value)
@@ -39,7 +39,14 @@ function PromptModal({ title, value, label }: { title: string; value: string; la
     >
       <label className="field">
         {label && <span>{label}</span>}
-        <input className="input" autoFocus value={v} onFocus={(e) => e.target.select()} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && ok()} />
+        <input
+          className="input"
+          autoFocus
+          value={v}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => setV(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && ok()}
+        />
       </label>
     </Modal>
   )
@@ -91,7 +98,13 @@ function UnsavedModal({ name }: { name?: string }) {
   )
 }
 
-function FolderPicker({ value, onChange }: { value: { collectionId: string; parentId: string | null } | null; onChange: (v: { collectionId: string; parentId: string | null }) => void }) {
+function FolderPicker({
+  value,
+  onChange
+}: {
+  value: { collectionId: string; parentId: string | null } | null
+  onChange: (v: { collectionId: string; parentId: string | null }) => void
+}) {
   const collections = useStore((s) => s.collections)
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const row = (key: string, depth: number, label: string, icon: React.ReactNode, sel: boolean, hasKids: boolean, onClick: () => void) => (
@@ -114,7 +127,9 @@ function FolderPicker({ value, onChange }: { value: { collectionId: string; pare
       .filter((i) => i.item)
       .map((f) => (
         <div key={f.id}>
-          {row(f.id, depth, f.name, <Folder size={14} color="var(--fg-muted)" />, value?.parentId === f.id, !!f.item!.some((x) => x.item), () => onChange({ collectionId: colId, parentId: f.id }))}
+          {row(f.id, depth, f.name, <Folder size={14} color="var(--fg-muted)" />, value?.parentId === f.id, !!f.item!.some((x) => x.item), () =>
+            onChange({ collectionId: colId, parentId: f.id })
+          )}
           {open[f.id] && folders(f.item!, colId, depth + 1)}
         </div>
       ))
@@ -177,7 +192,14 @@ function SaveRequestModal({ name }: { name: string }) {
     >
       <label className="field">
         <span>Nome</span>
-        <input className="input" autoFocus value={n} placeholder="Ex.: Listar usuários" onChange={(e) => setN(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && ok()} />
+        <input
+          className="input"
+          autoFocus
+          value={n}
+          placeholder="Ex.: Listar usuários"
+          onChange={(e) => setN(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && ok()}
+        />
       </label>
       <div className="field">
         <span>Salvar em</span>
@@ -261,7 +283,14 @@ function ImportModal() {
       </div>
       <div className="field" style={{ marginTop: 14 }}>
         <span>Ou cole aqui: JSON, YAML ou um comando cURL</span>
-        <textarea className="textarea mono" rows={8} value={text} spellCheck={false} onChange={(e) => setText(e.target.value)} placeholder="curl https://api.exemplo.com/users -H 'Authorization: Bearer …'" />
+        <textarea
+          className="textarea mono"
+          rows={8}
+          value={text}
+          spellCheck={false}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="curl https://api.exemplo.com/users -H 'Authorization: Bearer …'"
+        />
       </div>
     </Modal>
   )
@@ -361,9 +390,35 @@ function CodegenModal({ tabId }: { tabId: string }) {
   )
 }
 
+type SettingsTab = 'general' | 'proxy' | 'certs'
+
 function SettingsModal() {
   const settings = useStore((s) => s.settings)
   const workspacePath = useStore((s) => s.workspacePath)
+  const [tab, setTab] = useState<SettingsTab>('general')
+  const proxy = settings.proxy
+  const setProxy = (p: Partial<Settings['proxy']>) => updateSettings({ proxy: { ...proxy, ...p } })
+  const pick = async (title: string, extensions?: string[]) => (await api.openFile({ title, extensions })) as string | null
+  const setCert = (id: string, patch: Partial<ClientCert>) =>
+    updateSettings({ clientCerts: settings.clientCerts.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
+  const fileField = (label: string, value: string, onPick: () => void, onClear: () => void) => (
+    <div className="file-pick">
+      <span className="hint" style={{ width: 92, flexShrink: 0 }}>
+        {label}
+      </span>
+      <span className="mono" title={value}>
+        {value || '—'}
+      </span>
+      <button className="btn sm" onClick={onPick}>
+        Escolher…
+      </button>
+      {value && (
+        <button className="btn ghost sm" onClick={onClear}>
+          Remover
+        </button>
+      )}
+    </div>
+  )
   return (
     <Modal
       title="Configurações"
@@ -375,38 +430,185 @@ function SettingsModal() {
         </button>
       }
     >
-      <div className="form-grid">
-        <label>Pasta de trabalho</label>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', minWidth: 0 }}>
-          <span className="mono" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {workspacePath}
-          </span>
-          <button className="btn sm" onClick={() => (closeModal(), chooseWorkspace())}>
-            Trocar…
-          </button>
-        </div>
-        <label>Tema</label>
-        <select className="select" value={settings.theme} onChange={(e) => updateSettings({ theme: e.target.value as any })}>
-          <option value="system">Seguir o sistema</option>
-          <option value="light">Claro</option>
-          <option value="dark">Escuro</option>
-        </select>
-        <label>Layout da requisição</label>
-        <select className="select" value={settings.layout} onChange={(e) => updateSettings({ layout: e.target.value as any })}>
-          <option value="vertical">Resposta embaixo</option>
-          <option value="horizontal">Resposta ao lado</option>
-        </select>
-        <label>Seguir redirecionamentos</label>
-        <input type="checkbox" checked={settings.followRedirects} onChange={(e) => updateSettings({ followRedirects: e.target.checked })} />
-        <label>
-          Verificar certificados SSL
-          <div className="hint">Desligado aceita certificados autoassinados (útil em localhost).</div>
-        </label>
-        <input type="checkbox" checked={settings.strictSSL} onChange={(e) => updateSettings({ strictSSL: e.target.checked })} />
-        <label>Timeout da requisição (ms)</label>
-        <input className="input" type="number" min={0} value={settings.timeoutMs} onChange={(e) => updateSettings({ timeoutMs: Math.max(0, +e.target.value) })} placeholder="0 = sem limite" />
-        <label>Tamanho máximo da resposta (MB)</label>
-        <input className="input" type="number" min={1} value={settings.maxResponseMB} onChange={(e) => updateSettings({ maxResponseMB: Math.max(1, +e.target.value) })} />
+      <SubTabs
+        value={tab}
+        onChange={setTab}
+        tabs={[
+          { id: 'general', label: 'Geral' },
+          { id: 'proxy', label: 'Proxy' },
+          { id: 'certs', label: 'Certificados' }
+        ]}
+      />
+      <div style={{ paddingTop: 14 }}>
+        {tab === 'general' && (
+          <div className="form-grid">
+            <label>Pasta de trabalho</label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', minWidth: 0 }}>
+              <span className="mono" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {workspacePath}
+              </span>
+              <button className="btn sm" onClick={() => (closeModal(), chooseWorkspace())}>
+                Trocar…
+              </button>
+            </div>
+            <label>Tema</label>
+            <select className="select" value={settings.theme} onChange={(e) => updateSettings({ theme: e.target.value as any })}>
+              <option value="system">Seguir o sistema</option>
+              <option value="light">Claro</option>
+              <option value="dark">Escuro</option>
+            </select>
+            <label>Layout da requisição</label>
+            <select className="select" value={settings.layout} onChange={(e) => updateSettings({ layout: e.target.value as any })}>
+              <option value="vertical">Resposta embaixo</option>
+              <option value="horizontal">Resposta ao lado</option>
+            </select>
+            <label>Seguir redirecionamentos</label>
+            <input type="checkbox" checked={settings.followRedirects} onChange={(e) => updateSettings({ followRedirects: e.target.checked })} />
+            <label>
+              Verificar certificados SSL
+              <div className="hint">Desligado aceita certificados autoassinados (útil em localhost).</div>
+            </label>
+            <input type="checkbox" checked={settings.strictSSL} onChange={(e) => updateSettings({ strictSSL: e.target.checked })} />
+            <label>Timeout da requisição (ms)</label>
+            <input
+              className="input"
+              type="number"
+              min={0}
+              value={settings.timeoutMs}
+              onChange={(e) => updateSettings({ timeoutMs: Math.max(0, +e.target.value) })}
+              placeholder="0 = sem limite"
+            />
+            <label>Tamanho máximo da resposta (MB)</label>
+            <input
+              className="input"
+              type="number"
+              min={1}
+              value={settings.maxResponseMB}
+              onChange={(e) => updateSettings({ maxResponseMB: Math.max(1, +e.target.value) })}
+            />
+          </div>
+        )}
+        {tab === 'proxy' && (
+          <div className="form-grid">
+            <label>Proxy</label>
+            <select className="select" value={proxy.mode} onChange={(e) => setProxy({ mode: e.target.value as any })}>
+              <option value="off">Sem proxy</option>
+              <option value="system">Usar o proxy do sistema</option>
+              <option value="custom">Proxy manual</option>
+            </select>
+            {proxy.mode === 'custom' && (
+              <>
+                <label>
+                  Endereço
+                  <div className="hint">http, https, socks4 ou socks5</div>
+                </label>
+                <input
+                  className="input mono"
+                  placeholder="http://proxy.empresa.com:3128"
+                  value={proxy.url}
+                  onChange={(e) => setProxy({ url: e.target.value })}
+                />
+                <label>Usuário</label>
+                <input className="input" placeholder="opcional" value={proxy.username} onChange={(e) => setProxy({ username: e.target.value })} />
+                <label>Senha</label>
+                <input
+                  className="input"
+                  type="password"
+                  placeholder="opcional"
+                  value={proxy.password}
+                  onChange={(e) => setProxy({ password: e.target.value })}
+                />
+                <label>
+                  Sem proxy para
+                  <div className="hint">hosts separados por vírgula; aceita *.dominio.com</div>
+                </label>
+                <input className="input mono" value={proxy.bypass} onChange={(e) => setProxy({ bypass: e.target.value })} />
+              </>
+            )}
+            <div className="full hint" style={{ lineHeight: 1.6 }}>
+              {proxy.mode === 'system' && 'Usa as configurações de rede do sistema (inclui PAC). As variáveis HTTP_PROXY/HTTPS_PROXY também são respeitadas. '}
+              Vale para requisições HTTP e para o Runner. WebSocket, Socket.IO, MQTT e gRPC conectam direto.
+            </div>
+          </div>
+        )}
+        {tab === 'certs' && (
+          <div>
+            <div className="form-grid" style={{ marginBottom: 16 }}>
+              <label>
+                CA própria (PEM)
+                <div className="hint">Somada às autoridades conhecidas. Para APIs internas com certificado da empresa.</div>
+              </label>
+              <div className="cert-row" style={{ gridTemplateColumns: '1fr', margin: 0, border: 0, padding: 0 }}>
+                {fileField(
+                  'Arquivo',
+                  settings.caCertPath,
+                  async () => {
+                    const f = await pick('Certificado da CA (PEM)', ['pem', 'crt', 'cer'])
+                    if (f) updateSettings({ caCertPath: f })
+                  },
+                  () => updateSettings({ caCertPath: '' })
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+              <b>Certificados de cliente (mTLS)</b>
+              <div className="spacer" />
+              <button
+                className="btn sm"
+                onClick={() =>
+                  updateSettings({
+                    clientCerts: [...settings.clientCerts, { id: crypto.randomUUID(), host: '', certPath: '', keyPath: '', pfxPath: '', passphrase: '' }]
+                  })
+                }
+              >
+                Adicionar
+              </button>
+            </div>
+            {settings.clientCerts.length === 0 && (
+              <div className="empty-hint">Nenhum certificado. Adicione um para APIs que exigem autenticação por certificado.</div>
+            )}
+            {settings.clientCerts.map((c) => (
+              <div className="cert-row" key={c.id}>
+                <input
+                  className="input mono"
+                  placeholder="host, ex.: api.empresa.com ou *.empresa.com"
+                  value={c.host}
+                  onChange={(e) => setCert(c.id, { host: e.target.value })}
+                />
+                <button className="icon-btn" title="Remover" onClick={() => updateSettings({ clientCerts: settings.clientCerts.filter((x) => x.id !== c.id) })}>
+                  <Trash2 size={14} />
+                </button>
+                <div style={{ gridColumn: '1 / -1', display: 'grid', gap: 6 }}>
+                  {fileField(
+                    'Certificado',
+                    c.certPath,
+                    async () => setCert(c.id, { certPath: (await pick('Certificado (CRT/PEM)', ['crt', 'pem', 'cer'])) || c.certPath }),
+                    () => setCert(c.id, { certPath: '' })
+                  )}
+                  {fileField(
+                    'Chave',
+                    c.keyPath,
+                    async () => setCert(c.id, { keyPath: (await pick('Chave privada', ['key', 'pem'])) || c.keyPath }),
+                    () => setCert(c.id, { keyPath: '' })
+                  )}
+                  {fileField(
+                    'PFX/P12',
+                    c.pfxPath,
+                    async () => setCert(c.id, { pfxPath: (await pick('Arquivo PFX/P12', ['pfx', 'p12'])) || c.pfxPath }),
+                    () => setCert(c.id, { pfxPath: '' })
+                  )}
+                  <input
+                    className="input"
+                    type="password"
+                    placeholder="senha do certificado (opcional)"
+                    value={c.passphrase}
+                    onChange={(e) => setCert(c.id, { passphrase: e.target.value })}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </Modal>
   )
@@ -428,7 +630,12 @@ function CookiesModal() {
       onClose={() => closeModal()}
       footer={
         <>
-          <button className="btn danger" style={{ marginRight: 'auto' }} disabled={!cookies.length} onClick={() => api.clearCookies(domain || undefined).then(load)}>
+          <button
+            className="btn danger"
+            style={{ marginRight: 'auto' }}
+            disabled={!cookies.length}
+            onClick={() => api.clearCookies(domain || undefined).then(load)}
+          >
             {domain ? `Apagar cookies de ${domain}` : 'Apagar todos'}
           </button>
           <button className="btn primary" onClick={() => closeModal()}>

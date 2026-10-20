@@ -1,17 +1,14 @@
 import { randomUUID } from 'crypto'
 import type { Environment, ImportResult, PMCollection, PMItem, PMRequest } from '@shared/types'
 import { COLLECTION_SCHEMA } from '@shared/types'
-import { normalizeCollection } from './storage'
+import { normalizeCollection } from './collection'
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-const transformer = require('postman-collection-transformer')
-const openapi = require('openapi-to-postmanv2')
-const curl = require('curl-to-postmanv2')
-const sdk = require('postman-collection')
-/* eslint-enable @typescript-eslint/no-var-requires */
+import transformer from 'postman-collection-transformer'
+import openapi from 'openapi-to-postmanv2'
+import curl from 'curl-to-postmanv2'
+import sdk from 'postman-collection'
 
-const p = <T>(fn: (cb: (e: any, r: T) => void) => void) =>
-  new Promise<T>((resolve, reject) => fn((e, r) => (e ? reject(e) : resolve(r))))
+const p = <T>(fn: (cb: (e: any, r: T) => void) => void) => new Promise<T>((resolve, reject) => fn((e, r) => (e ? reject(e) : resolve(r))))
 
 /** Converte a URL estruturada do Postman (string ou objeto) para o formato do editor. */
 export function toEditorUrl(url: any) {
@@ -63,9 +60,7 @@ function asEnvironment(json: any): Environment {
 }
 
 async function fromOpenApi(text: string): Promise<PMCollection> {
-  const r: any = await p((cb) =>
-    openapi.convertV2({ type: 'string', data: text }, { folderStrategy: 'Tags', requestParametersResolution: 'Example' }, cb)
-  )
+  const r: any = await p((cb) => openapi.convertV2({ type: 'string', data: text }, { folderStrategy: 'Tags', requestParametersResolution: 'Example' }, cb))
   if (!r.result) throw new Error(r.reason || 'Especificação OpenAPI inválida')
   return asCollection(r.output[0].data)
 }

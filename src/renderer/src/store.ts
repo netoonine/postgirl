@@ -1,15 +1,6 @@
 import { create } from 'zustand'
-import type {
-  ConsoleEntry,
-  Environment,
-  EnvValue,
-  HistoryEntry,
-  HttpResult,
-  PMCollection,
-  PMItem,
-  Protocol,
-  Settings
-} from '@shared/types'
+import type { ConsoleEntry, Environment, EnvValue, HistoryEntry, HttpResult, PMCollection, PMItem, Protocol, MockLogEntry, Settings } from '@shared/types'
+import { DEFAULT_NETWORK } from '@shared/types'
 import { api } from './api'
 import { clone, containsId, findItem, newCollection, newFolder, newRequestItem, reId, uid } from './util'
 
@@ -66,6 +57,16 @@ interface State {
   consoleOpen: boolean
   logs: LogEntry[]
   modal: ModalState | null
+  paletteOpen: boolean
+  mocks: Record<string, MockState>
+}
+
+export interface MockState {
+  running: boolean
+  port?: number
+  routes?: number
+  error?: string
+  log: MockLogEntry[]
 }
 
 const UI_KEY = 'postgirl.ui'
@@ -74,11 +75,8 @@ const initial: State = {
   ready: false,
   workspacePath: '',
   settings: {
+    ...DEFAULT_NETWORK,
     workspacePath: '',
-    followRedirects: true,
-    strictSSL: false,
-    timeoutMs: 0,
-    maxResponseMB: 50,
     theme: 'system',
     layout: 'vertical'
   },
@@ -94,7 +92,9 @@ const initial: State = {
   sidebarSection: 'collections',
   consoleOpen: false,
   logs: [],
-  modal: null
+  modal: null,
+  paletteOpen: false,
+  mocks: {}
 }
 
 export const useStore = create<State>(() => initial)
@@ -152,7 +152,7 @@ function restoreUi() {
     }
     set({
       tabs,
-      activeTabId: tabs.some((t) => t.id === ui.activeTabId) ? ui.activeTabId : tabs[0]?.id ?? null,
+      activeTabId: tabs.some((t) => t.id === ui.activeTabId) ? ui.activeTabId : (tabs[0]?.id ?? null),
       activeEnvId: s.environments.some((e) => e.id === ui.activeEnvId) ? ui.activeEnvId : null,
       expanded: ui.expanded || {},
       sidebarOpen: ui.sidebarOpen ?? true,
@@ -180,6 +180,39 @@ export async function init() {
   })
   restoreUi()
   applyTheme()
+}
+
+/**
+ * Alterações feitas por fora do app (git pull, editor de texto): atualiza coleções e ambientes
+ * sem perder abas com alterações não salvas nem as respostas já recebidas.
+ */
+export async function syncFromDisk(files: string[] = []) {
+  const ws = await api.loadWorkspace()
+  const s = get()
+  const colOf = (id?: string) => ws.collections.find((c) => c.info._postman_id === id)
+  const tabs = s.tabs
+    .filter((t) => {
+      if (t.dirty) return true
+      if (t.kind === 'environment') return ws.environments.some((e) => e.id === t.envId)
+      if (!t.collectionId) return true
+      const col = colOf(t.collectionId)
+      return !!col && (!t.itemId || !!findItem(col.item, t.itemId))
+    })
+    .map((t) => {
+      if (t.kind !== 'request' || t.dirty || !t.collectionId || !t.itemId) return t
+      return { ...t, draft: clone(findItem(colOf(t.collectionId)!.item, t.itemId)!.item) }
+    })
+  set({
+    collections: ws.collections,
+    environments: ws.environments,
+    globals: ws.globals,
+    tabs,
+    activeEnvId: ws.environments.some((e) => e.id === s.activeEnvId) ? s.activeEnvId : null
+  })
+  fixActiveTab()
+  for (const c of ws.collections) if (s.mocks[c.info._postman_id]?.running) api.mock.update(c)
+  const what = files.length === 1 ? files[0].split(/[/\\]/).pop() : `${files.length} arquivos`
+  toast(`Atualizado a partir do disco: ${what}`)
 }
 
 export async function reloadWorkspace() {
@@ -216,8 +249,7 @@ export function closeModal(value?: any) {
   m?.resolve?.(value)
 }
 
-export const prompt = (title: string, value = '', label?: string) =>
-  openModal<string | undefined>('prompt', { title, value, label })
+export const prompt = (title: string, value = '', label?: string) => openModal<string | undefined>('prompt', { title, value, label })
 
 export const confirmDialog = (title: string, message: string, danger = false, okLabel = 'Confirmar') =>
   openModal<boolean>('confirm', { title, message, danger, okLabel })
@@ -233,7 +265,9 @@ function persistCollection(id: string, immediate = false) {
   clearTimeout(saveTimers.get(id))
   const run = () => {
     const c = getCollection(id)
-    if (c) api.saveCollection(c).catch((e) => toast(`Erro ao salvar: ${e.message}`, 'error'))
+    if (!c) return
+    api.saveCollection(c).catch((e) => toast(`Erro ao salvar: ${e.message}`, 'error'))
+    if (get().mocks[id]?.running) api.mock.update(c)
   }
   if (immediate) run()
   else saveTimers.set(id, setTimeout(run, 400))
@@ -268,7 +302,15 @@ export async function createCollection() {
 
 export async function deleteCollection(id: string) {
   const c = getCollection(id)
-  if (!c || !(await confirmDialog('Excluir coleção', `Excluir "${c.info.name}" e todas as requisições dela? O arquivo será apagado da pasta de trabalho.`, true, 'Excluir')))
+  if (
+    !c ||
+    !(await confirmDialog(
+      'Excluir coleção',
+      `Excluir "${c.info.name}" e todas as requisições dela? O arquivo será apagado da pasta de trabalho.`,
+      true,
+      'Excluir'
+    ))
+  )
     return
   await api.deleteCollection(id)
   set({
@@ -371,13 +413,7 @@ export async function deleteItem(collectionId: string, itemId: string) {
 }
 
 /** Arrastar e soltar: move entre pastas e entre coleções. */
-export function moveItem(
-  srcCol: string,
-  itemId: string,
-  dstCol: string,
-  targetId: string | null,
-  where: 'inside' | 'before' | 'after'
-) {
+export function moveItem(srcCol: string, itemId: string, dstCol: string, targetId: string | null, where: 'inside' | 'before' | 'after') {
   if (itemId === targetId) return
   const src = getCollection(srcCol)
   const found = src && findItem(src.item, itemId)
@@ -490,7 +526,18 @@ export function newItemFor(protocol: Protocol): PMItem {
   const defaults: Record<string, any> = {
     websocket: { url: 'wss://', headers: [], message: '', protocols: '' },
     socketio: { url: 'http://localhost:3000', path: '/socket.io', headers: [], event: 'message', message: '', auth: '', events: [] },
-    mqtt: { url: 'mqtt://localhost:1883', clientId: '', username: '', password: '', subscriptions: [{ topic: '#', qos: 0 }], topic: '', qos: 0, retain: false, message: '', version: 4 },
+    mqtt: {
+      url: 'mqtt://localhost:1883',
+      clientId: '',
+      username: '',
+      password: '',
+      subscriptions: [{ topic: '#', qos: 0 }],
+      topic: '',
+      qos: 0,
+      retain: false,
+      message: '',
+      version: 4
+    },
     grpc: { url: 'localhost:50051', tls: false, source: 'reflection', protoPath: '', method: '', message: '{}', metadata: [], deadlineMs: 0 }
   }
   const names: Record<string, string> = { websocket: 'WebSocket', socketio: 'Socket.IO', mqtt: 'MQTT', grpc: 'gRPC' }
@@ -693,3 +740,30 @@ export async function clearHistory() {
 export function openFromHistory(h: HistoryEntry) {
   openNewRequest('http', { name: h.url.replace(/^https?:\/\//, '').slice(0, 60), request: clone(h.request) })
 }
+
+// ---------------- mock server ----------------
+
+export function handleMockEvent(e: import('@shared/types').MockEvent) {
+  const cur: MockState = get().mocks[e.collectionId] || { running: false, log: [] }
+  const next: MockState =
+    e.type === 'status'
+      ? { ...cur, running: e.running, port: e.port ?? cur.port, routes: e.routes ?? cur.routes, error: e.error }
+      : { ...cur, log: [e.entry, ...cur.log].slice(0, 200) }
+  set({ mocks: { ...get().mocks, [e.collectionId]: next } })
+}
+
+export async function startMock(collectionId: string, port: number) {
+  const c = getCollection(collectionId)
+  if (!c) return
+  try {
+    await api.mock.start(c, port)
+  } catch (e: any) {
+    toast(String(e.message || e).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''), 'error')
+  }
+}
+
+export const stopMock = (collectionId: string) => api.mock.stop(collectionId)
+
+// ---------------- paleta de comandos ----------------
+
+export const setPalette = (open: boolean) => set({ paletteOpen: open })

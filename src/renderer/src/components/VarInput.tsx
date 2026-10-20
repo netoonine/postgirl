@@ -6,7 +6,23 @@ export const VarsContext = createContext<Map<string, ResolvedVar>>(new Map())
 
 const SOURCE_LABEL = { global: 'Global', collection: 'Coleção', environment: 'Ambiente' }
 
-const DYNAMIC_VARS = ['$guid', '$randomUUID', '$timestamp', '$isoTimestamp', '$randomInt', '$randomEmail', '$randomFirstName', '$randomLastName', '$randomFullName', '$randomCity', '$randomColor', '$randomBoolean', '$randomPrice', '$randomWord', '$randomLoremSentence']
+const DYNAMIC_VARS = [
+  '$guid',
+  '$randomUUID',
+  '$timestamp',
+  '$isoTimestamp',
+  '$randomInt',
+  '$randomEmail',
+  '$randomFirstName',
+  '$randomLastName',
+  '$randomFullName',
+  '$randomCity',
+  '$randomColor',
+  '$randomBoolean',
+  '$randomPrice',
+  '$randomWord',
+  '$randomLoremSentence'
+]
 
 function Highlighted({ text, vars }: { text: string; vars: Map<string, ResolvedVar> }) {
   const parts: React.ReactNode[] = []
@@ -19,7 +35,11 @@ function Highlighted({ text, vars }: { text: string; vars: Map<string, ResolvedV
     const v = vars.get(name)
     const ok = !!v || isDynamicVar(name)
     parts.push(
-      <span key={m.index} className={`tok-var${ok ? '' : ' bad'}`} title={v ? `${SOURCE_LABEL[v.source]}: ${v.value}` : ok ? 'Variável dinâmica' : 'Variável não definida'}>
+      <span
+        key={m.index}
+        className={`tok-var${ok ? '' : ' bad'}`}
+        title={v ? `${SOURCE_LABEL[v.source]}: ${v.value}` : ok ? 'Variável dinâmica' : 'Variável não definida'}
+      >
         {m[0]}
       </span>
     )
@@ -60,7 +80,10 @@ export function VarInput({
   useLayoutEffect(syncScroll)
 
   const options = suggest
-    ? [...[...vars.entries()].map(([k, v]) => ({ key: k, hint: `${SOURCE_LABEL[v.source]} · ${v.value}` })), ...DYNAMIC_VARS.map((k) => ({ key: k, hint: 'dinâmica' }))]
+    ? [
+        ...[...vars.entries()].map(([k, v]) => ({ key: k, hint: `${SOURCE_LABEL[v.source]} · ${v.value}` })),
+        ...DYNAMIC_VARS.map((k) => ({ key: k, hint: 'dinâmica' }))
+      ]
         .filter((o) => o.key.toLowerCase().includes(suggest.query.toLowerCase()))
         .slice(0, 40)
     : []

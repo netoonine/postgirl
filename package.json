@@ -1,17 +1,55 @@
 {
   "name": "postgirl",
   "productName": "Postgirl",
-  "version": "0.1.0",
-  "description": "Cliente de APIs desktop compatível com coleções Postman",
+  "version": "0.2.0",
+  "description": "Cliente de APIs desktop, local e open source, compatível com coleções do Postman",
+  "keywords": [
+    "api",
+    "rest",
+    "http",
+    "postman",
+    "api-client",
+    "electron",
+    "grpc",
+    "websocket",
+    "mqtt",
+    "graphql"
+  ],
+  "homepage": "https://github.com/netoonine/postgirl",
+  "bugs": {
+    "url": "https://github.com/netoonine/postgirl/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netoonine/postgirl.git"
+  },
+  "license": "MIT",
+  "author": "netoonine (https://github.com/netoonine)",
   "main": "out/main/index.js",
-  "license": "UNLICENSED",
+  "bin": {
+    "postgirl": "bin/postgirl.js"
+  },
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
+    "postinstall": "install-electron",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "dist": "electron-vite build && electron-builder --mac --arm64"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "node --test test/e2e/",
+    "test:server": "node test/server.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "cli": "node bin/postgirl.js",
+    "dist": "electron-vite build && electron-builder",
+    "dist:mac": "electron-vite build && electron-builder --mac",
+    "dist:win": "electron-vite build && electron-builder --win",
+    "dist:linux": "electron-vite build && electron-builder --linux"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.6",
@@ -47,40 +85,91 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^6.0.0",
     "lucide-react": "^1.57.0",
+    "playwright-core": "^1.64.1",
+    "prettier": "^3.9.10",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "5.9",
     "vite": "^8.3.4",
+    "vitest": "^5.0.5",
     "zustand": "^5.0.15"
   },
   "allowScripts": {
     "postman-code-generators@2.1.1": true,
     "protobufjs": false,
-    "electron-winstaller": false
+    "electron-winstaller": false,
+    "fsevents": false
   },
   "build": {
     "appId": "app.postgirl.client",
     "productName": "Postgirl",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "resources/brand"
     },
     "files": [
       "out/**",
       "package.json"
     ],
     "asar": true,
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "mac": {
       "target": [
         {
-          "target": "dir",
+          "target": "dmg",
           "arch": [
-            "arm64"
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
           ]
         }
       ],
       "category": "public.app-category.developer-tools",
       "identity": null,
       "icon": "resources/brand/icon.icns"
-    }
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "resources/brand/icon-1024.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Development",
+      "icon": "resources/brand/icon-1024.png",
+      "maintainer": "netoonine <207246753+netoonine@users.noreply.github.com>"
+    },
+    "publish": null
   }
 }

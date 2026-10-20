@@ -183,11 +183,7 @@ export function ResponseView({
           </div>
           <div style={{ flex: 1, minHeight: 0, borderTop: '1px solid var(--border)' }}>
             {view === 'pretty' &&
-              (body.isImage || body.isPdf ? (
-                <Preview r={r} body={body} />
-              ) : (
-                <CodeEditor readOnly value={body.pretty.text} lang={body.pretty.lang} />
-              ))}
+              (body.isImage || body.isPdf ? <Preview r={r} body={body} /> : <CodeEditor readOnly value={body.pretty.text} lang={body.pretty.lang} />)}
             {view === 'raw' && <CodeEditor readOnly value={body.text} lang="text" />}
             {view === 'preview' && <Preview r={r} body={body} />}
             {view === 'visualize' &&

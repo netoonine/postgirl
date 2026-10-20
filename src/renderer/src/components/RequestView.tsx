@@ -2,18 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronRight, Code2, Save } from 'lucide-react'
 import type { PMItem, PMRequest } from '@shared/types'
 import { api } from '../api'
-import {
-  cancelTab,
-  getCollection,
-  getEnvironment,
-  openModal,
-  saveTab,
-  sendTab,
-  Tab,
-  toast,
-  updateDraft,
-  useStore
-} from '../store'
+import { cancelTab, getCollection, getEnvironment, openModal, saveTab, sendTab, Tab, toast, updateDraft, useStore } from '../store'
 import { b64ToText, effectiveAuth, findItem, getScript, METHODS, methodColor, uid, urlFromQuery, urlFromRaw, variableMap } from '../util'
 import { AuthEditor } from './AuthEditor'
 import { BodyEditor } from './BodyEditor'
@@ -113,7 +102,17 @@ export function RequestView({ tab }: { tab: Tab }) {
         value={sub}
         onChange={setSub}
         tabs={[
-          { id: 'params', label: <>Params {query.filter((q) => !q.disabled).length + pathVars.length > 0 && <span className="count">{query.filter((q) => !q.disabled).length + pathVars.length}</span>}</> },
+          {
+            id: 'params',
+            label: (
+              <>
+                Params{' '}
+                {query.filter((q) => !q.disabled).length + pathVars.length > 0 && (
+                  <span className="count">{query.filter((q) => !q.disabled).length + pathVars.length}</span>
+                )}
+              </>
+            )
+          },
           { id: 'auth', label: <>Autorização {req.auth && req.auth.type !== 'noauth' && <span className="count">•</span>}</> },
           { id: 'headers', label: <>Headers {enabledHeaders > 0 && <span className="count">{enabledHeaders}</span>}</> },
           { id: 'body', label: <>Corpo {hasBody && <span className="count">•</span>}</> },
@@ -150,7 +149,8 @@ export function RequestView({ tab }: { tab: Tab }) {
           <>
             <KVTable title="Headers" rows={req.header} onChange={(rows) => setReq((r) => (r.header = rows))} />
             <p className="hint" style={{ marginTop: 10 }}>
-              Content-Type, User-Agent, Host, Content-Length e Accept são preenchidos automaticamente no envio quando não informados. Veja os headers efetivos na aba Headers da resposta.
+              Content-Type, User-Agent, Host, Content-Length e Accept são preenchidos automaticamente no envio quando não informados. Veja os headers efetivos
+              na aba Headers da resposta.
             </p>
           </>
         )}
@@ -225,7 +225,8 @@ export function RequestView({ tab }: { tab: Tab }) {
               value={METHODS.includes(req.method as any) ? req.method : '__custom'}
               onChange={async (e) => {
                 let m = e.target.value
-                if (m === '__custom') m = ((await openModal<string>('prompt', { title: 'Método personalizado', value: 'PROPFIND', label: 'Método' })) || req.method).toUpperCase()
+                if (m === '__custom')
+                  m = ((await openModal<string>('prompt', { title: 'Método personalizado', value: 'PROPFIND', label: 'Método' })) || req.method).toUpperCase()
                 setReq((r) => (r.method = m))
               }}
             >
@@ -258,7 +259,10 @@ export function RequestView({ tab }: { tab: Tab }) {
         <div className={`split${vertical ? ' vertical' : ''}`} style={{ borderTop: '1px solid var(--border)' }}>
           {requestPane}
           <div className={`${vertical ? 'resizer-h' : 'resizer'}${split.dragging ? ' dragging' : ''}`} onMouseDown={split.onMouseDown} />
-          <div className="pane" style={{ flex: 1, borderTop: vertical ? '1px solid var(--border)' : undefined, borderLeft: vertical ? undefined : '1px solid var(--border)' }}>
+          <div
+            className="pane"
+            style={{ flex: 1, borderTop: vertical ? '1px solid var(--border)' : undefined, borderLeft: vertical ? undefined : '1px solid var(--border)' }}
+          >
             <ResponseView result={tab.result} loading={tab.loading} onCancel={() => cancelTab(tab.id)} onSaveExample={saveExample} />
           </div>
         </div>
@@ -274,7 +278,12 @@ function SettingRow({ label, hint, value, onChange }: { label: string; hint: str
         {label}
         <div className="hint">{hint}</div>
       </label>
-      <select className="select" style={{ width: 200 }} value={value === undefined ? '' : String(value)} onChange={(e) => onChange(e.target.value === '' ? undefined : e.target.value === 'true')}>
+      <select
+        className="select"
+        style={{ width: 200 }}
+        value={value === undefined ? '' : String(value)}
+        onChange={(e) => onChange(e.target.value === '' ? undefined : e.target.value === 'true')}
+      >
         <option value="">Padrão</option>
         <option value="true">Sim</option>
         <option value="false">Não</option>

@@ -36,17 +36,28 @@ export function handleRtEvent(e: RealtimeEvent) {
   const cur = useRt.getState()[e.connId] || { status: 'idle', messages: [] }
   if (e.type === 'status') patch(e.connId, { status: e.status, detail: e.detail })
   if (e.type === 'message')
-    patch(e.connId, { messages: [...cur.messages, { direction: e.direction, data: e.data, at: e.at, event: e.event, topic: e.topic, binary: e.binary }].slice(-2000) })
+    patch(e.connId, {
+      messages: [...cur.messages, { direction: e.direction, data: e.data, at: e.at, event: e.event, topic: e.topic, binary: e.binary }].slice(-2000)
+    })
   if (e.type === 'grpc-end')
     patch(e.connId, {
       status: 'disconnected',
       detail: `${e.status} · ${e.time} ms`,
-      messages: e.trailers && Object.keys(e.trailers).length ? [...cur.messages, { direction: 'in', event: 'trailers', data: JSON.stringify(e.trailers, null, 2), at: Date.now() }] : cur.messages
+      messages:
+        e.trailers && Object.keys(e.trailers).length
+          ? [...cur.messages, { direction: 'in', event: 'trailers', data: JSON.stringify(e.trailers, null, 2), at: Date.now() }]
+          : cur.messages
     })
 }
 
 const LABEL: Record<string, string> = { websocket: 'WebSocket', socketio: 'Socket.IO', mqtt: 'MQTT', grpc: 'gRPC' }
-const STATUS_LABEL: Record<string, string> = { idle: 'Desconectado', connecting: 'Conectando…', connected: 'Conectado', disconnected: 'Desconectado', error: 'Erro' }
+const STATUS_LABEL: Record<string, string> = {
+  idle: 'Desconectado',
+  connecting: 'Conectando…',
+  connected: 'Conectado',
+  disconnected: 'Desconectado',
+  error: 'Erro'
+}
 
 const kvToObj = (rows: KV[] = [], vars: Map<string, ResolvedVar>) =>
   Object.fromEntries(rows.filter((r) => r.key && !r.disabled).map((r) => [resolveVars(r.key, vars), resolveVars(r.value, vars)]))
@@ -81,7 +92,14 @@ export function RealtimeView({ tab }: { tab: Tab }) {
             .filter(Boolean)
         })
       if (protocol === 'socketio')
-        await api.rt.io({ connId: tab.id, url: r(cfg.url), path: r(cfg.path), headers: kvToObj(cfg.headers, vars), auth: r(cfg.auth), events: cfg.events || [] })
+        await api.rt.io({
+          connId: tab.id,
+          url: r(cfg.url),
+          path: r(cfg.path),
+          headers: kvToObj(cfg.headers, vars),
+          auth: r(cfg.auth),
+          events: cfg.events || []
+        })
       if (protocol === 'mqtt')
         await api.rt.mqtt({
           connId: tab.id,
@@ -182,7 +200,12 @@ export function RealtimeView({ tab }: { tab: Tab }) {
                 <ChevronRight size={12} />
               </>
             )}
-            <input className="inline-edit" style={{ fontSize: 13, fontWeight: 600, padding: '2px 4px' }} value={draft.name} onChange={(e) => updateDraft(tab.id, (d) => (d.name = e.target.value))} />
+            <input
+              className="inline-edit"
+              style={{ fontSize: 13, fontWeight: 600, padding: '2px 4px' }}
+              value={draft.name}
+              onChange={(e) => updateDraft(tab.id, (d) => (d.name = e.target.value))}
+            />
           </div>
           <div className="spacer" />
           <button className="btn sm" onClick={() => saveTab(tab.id)}>
@@ -246,7 +269,9 @@ export function RealtimeView({ tab }: { tab: Tab }) {
                     {conn.methods?.map((m) => (
                       <option key={m.path} value={m.path}>
                         {m.service.split('.').pop()}/{m.method}
-                        {m.requestStream || m.responseStream ? `  (${m.requestStream ? 'client' : ''}${m.requestStream && m.responseStream ? '+' : ''}${m.responseStream ? 'server' : ''} stream)` : ''}
+                        {m.requestStream || m.responseStream
+                          ? `  (${m.requestStream ? 'client' : ''}${m.requestStream && m.responseStream ? '+' : ''}${m.responseStream ? 'server' : ''} stream)`
+                          : ''}
                       </option>
                     ))}
                   </select>
@@ -329,7 +354,12 @@ export function RealtimeView({ tab }: { tab: Tab }) {
                   {protocol === 'websocket' && (
                     <>
                       <label>Subprotocolos</label>
-                      <input className="input" placeholder="graphql-ws, chat (separados por vírgula)" value={cfg.protocols || ''} onChange={(e) => set({ protocols: e.target.value })} />
+                      <input
+                        className="input"
+                        placeholder="graphql-ws, chat (separados por vírgula)"
+                        value={cfg.protocols || ''}
+                        onChange={(e) => set({ protocols: e.target.value })}
+                      />
                     </>
                   )}
                   {protocol === 'socketio' && (
@@ -337,13 +367,24 @@ export function RealtimeView({ tab }: { tab: Tab }) {
                       <label>Caminho</label>
                       <input className="input" value={cfg.path || ''} placeholder="/socket.io" onChange={(e) => set({ path: e.target.value })} />
                       <label>Auth (JSON)</label>
-                      <textarea className="textarea mono" rows={4} value={cfg.auth || ''} placeholder='{"token": "{{token}}"}' onChange={(e) => set({ auth: e.target.value })} />
+                      <textarea
+                        className="textarea mono"
+                        rows={4}
+                        value={cfg.auth || ''}
+                        placeholder='{"token": "{{token}}"}'
+                        onChange={(e) => set({ auth: e.target.value })}
+                      />
                     </>
                   )}
                   {protocol === 'mqtt' && (
                     <>
                       <label>Client ID</label>
-                      <input className="input" value={cfg.clientId || ''} placeholder="Gerado automaticamente" onChange={(e) => set({ clientId: e.target.value })} />
+                      <input
+                        className="input"
+                        value={cfg.clientId || ''}
+                        placeholder="Gerado automaticamente"
+                        onChange={(e) => set({ clientId: e.target.value })}
+                      />
                       <label>Usuário</label>
                       <input className="input" value={cfg.username || ''} onChange={(e) => set({ username: e.target.value })} />
                       <label>Senha</label>
@@ -407,7 +448,9 @@ export function RealtimeView({ tab }: { tab: Tab }) {
               </button>
             </div>
             <div className="rt-list">
-              {shown.length === 0 && <div className="empty-hint">{protocol === 'grpc' ? 'Invoque um método para ver a resposta.' : 'Conecte para trocar mensagens.'}</div>}
+              {shown.length === 0 && (
+                <div className="empty-hint">{protocol === 'grpc' ? 'Invoque um método para ver a resposta.' : 'Conecte para trocar mensagens.'}</div>
+              )}
               {shown.map((m, i) => (
                 <div key={i} className={`rt-msg${expanded[i] ? ' expanded' : ''}`} onClick={() => setExpanded({ ...expanded, [i]: !expanded[i] })}>
                   <span className={`dir ${m.direction}`}>{m.direction === 'in' ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}</span>

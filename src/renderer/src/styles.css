@@ -83,7 +83,13 @@ body,
 body {
   background: var(--bg);
   color: var(--fg);
-  font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Inter, sans-serif;
+  font:
+    13px/1.4 -apple-system,
+    BlinkMacSystemFont,
+    'SF Pro Text',
+    'Segoe UI',
+    Inter,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   user-select: none;
@@ -134,6 +140,10 @@ pre {
   background: var(--bg-2);
 }
 .topbar > * {
+  -webkit-app-region: no-drag;
+}
+:root:not([data-platform='mac']) .topbar {
+  padding-left: 12px;
   -webkit-app-region: no-drag;
 }
 .topbar .brand {
@@ -304,7 +314,11 @@ pre {
   bottom: -1px;
 }
 .method-badge {
-  font: 700 9.5px/1 'SF Mono', ui-monospace, Menlo, monospace;
+  font:
+    700 9.5px/1 'SF Mono',
+    ui-monospace,
+    Menlo,
+    monospace;
   width: 38px;
   text-align: right;
   flex-shrink: 0;
@@ -1477,4 +1491,124 @@ input[type='checkbox'] {
 }
 .selectable {
   user-select: text;
+}
+
+/* ---------------- busca rápida (⌘K) ---------------- */
+
+.palette-backdrop {
+  padding-top: 12vh;
+}
+
+.palette {
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  width: 640px;
+  max-width: calc(100vw - 32px);
+  max-height: 64vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.palette-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-muted);
+}
+
+.palette-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+}
+
+.palette-list {
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.palette-item.active {
+  background: var(--accent-soft);
+}
+
+.palette-icon {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  color: var(--fg-muted);
+}
+
+.palette-icon .method-badge {
+  text-align: right;
+}
+
+.palette-title {
+  white-space: nowrap;
+  font-weight: 550;
+}
+
+.palette-detail {
+  color: var(--fg-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.search-btn .kbd {
+  margin-left: 4px;
+}
+
+.count.ok-dot {
+  color: var(--ok);
+  background: transparent;
+}
+
+/* ---------------- certificados de cliente ---------------- */
+
+.cert-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.cert-row .file-pick {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.cert-row .file-pick .mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }

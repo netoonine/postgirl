@@ -1,0 +1,121 @@
+{
+  "info": {
+    "_postman_id": "0d6f3c1e-8a52-4c8e-9a51-6f7c2b1d0e01",
+    "name": "Demo Postgirl",
+    "description": "Coleção usada nos testes automatizados e como exemplo da CLI.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://127.0.0.1:4555" }],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    {
+      "id": "c3f2a0b1-0000-4000-8000-000000000001",
+      "name": "Usuários",
+      "item": [
+        {
+          "id": "c3f2a0b1-0000-4000-8000-000000000002",
+          "name": "Listar usuários",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200))",
+                  "pm.test('retorna 2 usuários', () => pm.expect(pm.response.json()).to.have.length(2))",
+                  "pm.environment.set('firstId', String(pm.response.json()[0].id))"
+                ]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users" } },
+          "response": [
+            {
+              "id": "ex-1",
+              "name": "Dois usuários",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users" } },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[{\"id\":1,\"name\":\"Ada\"},{\"id\":2,\"name\":\"Grace\"}]",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "id": "c3f2a0b1-0000-4000-8000-000000000003",
+          "name": "Buscar usuário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('nome é Ada', () => pm.expect(pm.response.json().name).to.eql('Ada'))"]
+              }
+            }
+          ],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users/:id", "variable": [{ "key": "id", "value": "{{firstId}}" }] } },
+          "response": [
+            {
+              "id": "ex-2",
+              "name": "Ada",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users/:id" } },
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"id\":1,\"name\":\"Ada\"}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ex-3",
+              "name": "Não encontrado",
+              "originalRequest": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/users/:id" } },
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\"error\":\"not found\"}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c3f2a0b1-0000-4000-8000-000000000004",
+      "name": "Token herdado da coleção",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.test('autenticado com o token do ambiente', () => pm.expect(pm.response.json().token).to.eql(pm.environment.get('token')))"]
+          }
+        }
+      ],
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/bearer" } }
+    },
+    {
+      "id": "c3f2a0b1-0000-4000-8000-000000000005",
+      "name": "POST com dados da iteração",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const sent = pm.iterationData.get('nome') || 'sem dados'",
+              "console.log('enviado:', sent)",
+              "pm.test('servidor recebeu o nome', () => pm.expect(pm.response.json().json.nome).to.eql(sent))"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"nome\": \"{{nome}}\"}", "options": { "raw": { "language": "json" } } },
+        "url": { "raw": "{{baseUrl}}/post" }
+      }
+    }
+  ]
+}

@@ -108,7 +108,11 @@ export function KVTable({
                         <VarInput cell value={r.key} placeholder={isNew ? keyPlaceholder : ''} onChange={(v) => update(i, { key: v })} />
                       )}
                       {files && (
-                        <select className="mini-select" value={r.type === 'file' ? 'file' : 'text'} onChange={(e) => update(i, { type: e.target.value, ...(e.target.value === 'text' ? { src: undefined } : {}) })}>
+                        <select
+                          className="mini-select"
+                          value={r.type === 'file' ? 'file' : 'text'}
+                          onChange={(e) => update(i, { type: e.target.value, ...(e.target.value === 'text' ? { src: undefined } : {}) })}
+                        >
                           <option value="text">Texto</option>
                           <option value="file">Arquivo</option>
                         </select>
@@ -121,7 +125,9 @@ export function KVTable({
                         <button className="btn sm" onClick={() => pickFile(i)}>
                           <FileUp size={13} /> Escolher
                         </button>
-                        <span title={String(r.src || '')}>{r.src ? (Array.isArray(r.src) ? `${r.src.length} arquivos` : String(r.src).split('/').pop()) : 'Nenhum arquivo'}</span>
+                        <span title={String(r.src || '')}>
+                          {r.src ? (Array.isArray(r.src) ? `${r.src.length} arquivos` : String(r.src).split('/').pop()) : 'Nenhum arquivo'}
+                        </span>
                       </div>
                     ) : (
                       <VarInput cell value={r.value ?? ''} placeholder={isNew ? valuePlaceholder : ''} onChange={(v) => update(i, { value: v })} />
@@ -129,7 +135,12 @@ export function KVTable({
                   </td>
                   {description && (
                     <td>
-                      <input className="cell-input" value={r.description || ''} placeholder={isNew ? 'Descrição' : ''} onChange={(e) => update(i, { description: e.target.value || undefined })} />
+                      <input
+                        className="cell-input"
+                        value={r.description || ''}
+                        placeholder={isNew ? 'Descrição' : ''}
+                        onChange={(e) => update(i, { description: e.target.value || undefined })}
+                      />
                     </td>
                   )}
                   <td className="c-act">

@@ -5,10 +5,12 @@ import type { Environment, EnvValue, HistoryEntry, PMCollection, RunnerOptions, 
 import * as storage from './storage'
 import * as cookies from './cookies'
 import { cancelRun, sendRequest, startRunner } from './http'
-import { generate, languages } from './codegen'
-import { curlToRequest, importText } from './importer'
+import { generate, languages } from '../core/codegen'
+import { curlToRequest, importText } from '../core/importer'
 import { getToken, OAuth2Config } from './oauth2'
 import * as rt from './realtime'
+import * as mocks from './mocks'
+import { watchWorkspace } from './watcher'
 
 let win: BrowserWindow | null = null
 
@@ -19,8 +21,8 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'Postgirl',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 14, y: 14 },
+    // macOS: barra integrada com os botões de janela; Windows/Linux: barra nativa
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 14, y: 14 } } : { autoHideMenuBar: true }),
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#1b1b1f' : '#ffffff',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
@@ -59,7 +61,20 @@ function buildMenu() {
           { label: 'Recarregar pasta de trabalho', accelerator: 'CmdOrCtrl+Shift+R', click: menu('reload-workspace') }
         ]
       },
-      { role: 'editMenu' },
+      {
+        role: 'editMenu',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' },
+          { type: 'separator' },
+          { label: 'Buscar requisições e comandos…', accelerator: 'CmdOrCtrl+K', click: menu('palette') }
+        ]
+      },
       {
         label: 'Visualizar',
         submenu: [
@@ -81,12 +96,16 @@ function buildMenu() {
   )
 }
 
+/** Carrega a pasta de trabalho e passa a observar alterações externas (git pull, editor). */
+function loadAndWatch() {
+  const ws = storage.loadWorkspace()
+  cookies.resetJar()
+  watchWorkspace(ws.path, (files) => send('workspace:changed', files))
+  return ws
+}
+
 function registerIpc() {
-  ipcMain.handle('workspace:load', () => {
-    const ws = storage.loadWorkspace()
-    cookies.resetJar()
-    return ws
-  })
+  ipcMain.handle('workspace:load', () => loadAndWatch())
   ipcMain.handle('workspace:choose', async () => {
     const r = await dialog.showOpenDialog(win!, {
       title: 'Escolha a pasta de trabalho',
@@ -94,8 +113,7 @@ function registerIpc() {
     })
     if (r.canceled || !r.filePaths[0]) return null
     storage.saveSettings({ workspacePath: r.filePaths[0] })
-    cookies.resetJar()
-    return storage.loadWorkspace()
+    return loadAndWatch()
   })
   ipcMain.handle('settings:save', (_e, s: Partial<Settings>) => {
     const next = storage.saveSettings(s)
@@ -158,6 +176,12 @@ function registerIpc() {
   })
   ipcMain.handle('file:read-text', (_e, p: string) => fs.readFileSync(p, 'utf8'))
 
+  const mockEmit = (ev: unknown) => send('mock:event', ev)
+  ipcMain.handle('mock:start', (_e, c: PMCollection, port: number) => mocks.startMock(c, port, mockEmit))
+  ipcMain.handle('mock:update', (_e, c: PMCollection) => mocks.updateMock(c, mockEmit))
+  ipcMain.handle('mock:stop', (_e, id: string) => mocks.stopMock(id, mockEmit))
+  ipcMain.handle('mock:status', () => mocks.mockStatus())
+
   ipcMain.handle('rt:ws', (_e, o) => rt.wsConnect(o, (ev) => send('rt:event', ev)))
   ipcMain.handle('rt:io', (_e, o) => rt.ioConnect(o, (ev) => send('rt:event', ev)))
   ipcMain.handle('rt:mqtt', (_e, o) => rt.mqttConnect(o, (ev) => send('rt:event', ev)))
@@ -182,3 +206,4 @@ app.whenReady().then(() => {
   app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow())
 })
 app.on('window-all-closed', () => process.platform !== 'darwin' && app.quit())
+app.on('before-quit', () => void mocks.stopAllMocks())

@@ -12,10 +12,7 @@ const SNIPPETS: Record<'prerequest' | 'test', [string, string][]> = {
     ['Definir variável global', 'pm.globals.set("variable_key", "variable_value");'],
     ['Timestamp atual em variável', 'pm.variables.set("now", Date.now());'],
     ['Adicionar header', 'pm.request.headers.upsert({ key: "X-Custom", value: "valor" });'],
-    [
-      'Enviar outra requisição',
-      'pm.sendRequest("https://postman-echo.com/get", function (err, response) {\n    console.log(response.json());\n});'
-    ],
+    ['Enviar outra requisição', 'pm.sendRequest("https://postman-echo.com/get", function (err, response) {\n    console.log(response.json());\n});'],
     ['Pular esta requisição', 'pm.execution.skipRequest();']
   ],
   test: [

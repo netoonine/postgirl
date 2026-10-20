@@ -129,7 +129,14 @@ export function RunnerView({ tab }: { tab: Tab }) {
         <div className="runner-config">
           <div className="field">
             <span>Iterações</span>
-            <input className="input" type="number" min={1} disabled={!!data} value={data ? data.rows.length : iterations} onChange={(e) => setIterations(Math.max(1, +e.target.value))} />
+            <input
+              className="input"
+              type="number"
+              min={1}
+              disabled={!!data}
+              value={data ? data.rows.length : iterations}
+              onChange={(e) => setIterations(Math.max(1, +e.target.value))}
+            />
           </div>
           <div className="field">
             <span>Intervalo entre requisições (ms)</span>
@@ -250,7 +257,9 @@ export function RunnerView({ tab }: { tab: Tab }) {
                     <div className="tests">
                       {r.tests.map((t, j) => (
                         <div key={j}>
-                          <span className={`pill ${t.skipped ? 'skip' : t.passed ? 'pass' : 'fail'}`}>{t.skipped ? 'PULADO' : t.passed ? 'PASSOU' : 'FALHOU'}</span>
+                          <span className={`pill ${t.skipped ? 'skip' : t.passed ? 'pass' : 'fail'}`}>
+                            {t.skipped ? 'PULADO' : t.passed ? 'PASSOU' : 'FALHOU'}
+                          </span>
                           {t.name}
                           {t.error && <span style={{ color: 'var(--err)' }}> · {t.error}</span>}
                         </div>

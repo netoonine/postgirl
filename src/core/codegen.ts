@@ -1,9 +1,7 @@
 import type { CodegenLanguage, EnvValue, KV, PMAuth, PMRequest } from '@shared/types'
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-const codegen = require('postman-code-generators')
-const sdk = require('postman-collection')
-/* eslint-enable @typescript-eslint/no-var-requires */
+import codegen from 'postman-code-generators'
+import sdk from 'postman-collection'
 
 export function languages(): CodegenLanguage[] {
   return codegen.getLanguageList()
@@ -33,13 +31,7 @@ function applyAuth(req: any, auth?: PMAuth | null) {
   }
 }
 
-export function generate(o: {
-  request: PMRequest
-  auth?: PMAuth | null
-  lang: string
-  variant: string
-  variables: (EnvValue | KV)[]
-}): Promise<string> {
+export function generate(o: { request: PMRequest; auth?: PMAuth | null; lang: string; variant: string; variables: (EnvValue | KV)[] }): Promise<string> {
   return new Promise((resolve, reject) => {
     const reqJson: any = JSON.parse(JSON.stringify(o.request))
     reqJson.header = (reqJson.header || []).filter((h: any) => !h.disabled)

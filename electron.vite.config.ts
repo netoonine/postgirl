@@ -4,7 +4,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    resolve: { alias: { '@shared': resolve('src/shared') } }
+    resolve: { alias: { '@shared': resolve('src/shared') } },
+    build: {
+      rolldownOptions: {
+        // o app e a CLI (bin/postgirl.js) saem do mesmo build e compartilham src/core
+        input: { index: resolve('src/main/index.ts'), cli: resolve('src/cli/index.ts') }
+      }
+    }
   },
   preload: {},
   renderer: {

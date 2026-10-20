@@ -3,25 +3,25 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { randomUUID } from 'crypto'
-import type { Environment, EnvValue, HistoryEntry, PMCollection, PMItem, Settings, Workspace } from '@shared/types'
-import { COLLECTION_SCHEMA } from '@shared/types'
+import type { Environment, EnvValue, HistoryEntry, PMCollection, Settings, Workspace } from '@shared/types'
+import { DEFAULT_NETWORK } from '@shared/types'
+import { normalizeCollection, stripInherit } from '../core/collection'
+import * as secrets from './secrets'
 
 // Layout da pasta de trabalho (versionável com git):
 //   collections/<nome>-<id>.postman_collection.json
 //   environments/<nome>-<id>.postman_environment.json
 //   globals.postman_globals.json
 //   cookies.json, history.json
+// Valores "secreto" de ambientes/globais não vão para esses arquivos: ficam no cofre (secrets.ts).
 
 const HISTORY_LIMIT = 300
 
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json')
 
 const defaultSettings = (): Settings => ({
+  ...DEFAULT_NETWORK,
   workspacePath: process.env.POSTGIRL_USER_DATA ? path.join(process.env.POSTGIRL_USER_DATA, 'workspace') : path.join(os.homedir(), 'Postgirl'),
-  followRedirects: true,
-  strictSSL: false,
-  timeoutMs: 0,
-  maxResponseMB: 50,
   theme: 'system',
   layout: 'vertical'
 })
@@ -34,11 +34,33 @@ function readJSON<T>(file: string, fallback: T): T {
   }
 }
 
+// o que o próprio app gravou/apagou, para o watcher não tratar como alteração externa
+const ownWrites = new Map<string, string>()
+const ownDeletes = new Map<string, number>()
+
 function writeJSON(file: string, data: unknown) {
   fs.mkdirSync(path.dirname(file), { recursive: true })
+  const text = JSON.stringify(data, null, 2) + '\n'
   const tmp = `${file}.${process.pid}.tmp`
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n')
+  ownWrites.set(file, text)
+  fs.writeFileSync(tmp, text)
   fs.renameSync(tmp, file)
+}
+
+function removeFile(file: string) {
+  ownDeletes.set(file, Date.now())
+  ownWrites.delete(file)
+  if (fs.existsSync(file)) fs.unlinkSync(file)
+}
+
+/** true quando o arquivo está exatamente como o app o deixou */
+export function isOwnChange(file: string): boolean {
+  if (!fs.existsSync(file)) return Date.now() - (ownDeletes.get(file) || 0) < 5000
+  try {
+    return ownWrites.get(file) === fs.readFileSync(file, 'utf8')
+  } catch {
+    return false
+  }
 }
 
 const slug = (s: string) =>
@@ -67,26 +89,31 @@ export function saveSettings(next: Partial<Settings>): Settings {
   return settings
 }
 
-/** Garante ids em todos os itens: o Postgirl identifica requisições e pastas por id. */
-function ensureIds(items: PMItem[] = []) {
-  for (const it of items) {
-    if (!it.id) it.id = randomUUID()
-    if (it.item) ensureIds(it.item)
-  }
+export { normalizeCollection }
+
+const globalsScope = () => `globals:${settings.workspacePath}`
+
+/** Preenche os valores secretos a partir do cofre. */
+function withSecrets(values: EnvValue[] = [], scope: string): EnvValue[] {
+  const vault = secrets.getScope(scope)
+  return values.map((v) => (v.type === 'secret' && vault[v.key] !== undefined ? { ...v, value: vault[v.key] } : v))
 }
 
-export function normalizeCollection(c: PMCollection): PMCollection {
-  c.info = c.info || ({} as PMCollection['info'])
-  c.info._postman_id = c.info._postman_id || randomUUID()
-  c.info.name = c.info.name || 'Nova coleção'
-  c.info.schema = COLLECTION_SCHEMA
-  c.item = c.item || []
-  ensureIds(c.item)
-  return c
+/** Separa os segredos (vão para o cofre) do que vai para o arquivo. */
+function splitSecrets(values: EnvValue[], scope: string): EnvValue[] {
+  const vault: Record<string, string> = {}
+  const out = values.map((v) => {
+    if (v.type !== 'secret' || !v.key) return v
+    vault[v.key] = v.value
+    return { ...v, value: '' }
+  })
+  secrets.setScope(scope, vault)
+  return out
 }
 
 export function loadWorkspace(): Workspace {
-  settings = { ...defaultSettings(), ...readJSON<Partial<Settings>>(settingsFile(), {}) }
+  const saved = readJSON<Partial<Settings>>(settingsFile(), {})
+  settings = { ...defaultSettings(), ...saved, proxy: { ...DEFAULT_NETWORK.proxy, ...saved.proxy } }
   fs.mkdirSync(dir('collections'), { recursive: true })
   fs.mkdirSync(dir('environments'), { recursive: true })
 
@@ -111,25 +138,17 @@ export function loadWorkspace(): Workspace {
     const file = dir('environments', f)
     const e = readJSON<any>(file, null)
     if (!e) continue
-    const env: Environment = { id: e.id || randomUUID(), name: e.name || 'Ambiente', values: e.values || [] }
+    const id = e.id || randomUUID()
+    const env: Environment = { id, name: e.name || 'Ambiente', values: withSecrets(e.values, `env:${id}`) }
     environmentFiles.set(env.id, file)
     environments.push(env)
   }
   environments.sort((a, b) => a.name.localeCompare(b.name))
 
-  const globals = readJSON<any>(dir('globals.postman_globals.json'), { values: [] }).values || []
+  const globals = withSecrets(readJSON<any>(dir('globals.postman_globals.json'), { values: [] }).values || [], globalsScope())
   const history = readJSON<HistoryEntry[]>(dir('history.json'), [])
 
   return { path: settings.workspacePath, collections, environments, globals, history, settings }
-}
-
-/** No schema v2.1, "herdar do pai" é a ausência do campo auth. */
-function stripInherit(items: PMItem[] = []) {
-  for (const it of items) {
-    if (it.auth?.type === 'inherit') delete it.auth
-    if (it.request?.auth?.type === 'inherit') delete it.request.auth
-    if (it.item) stripInherit(it.item)
-  }
 }
 
 export function saveCollection(c: PMCollection) {
@@ -140,35 +159,36 @@ export function saveCollection(c: PMCollection) {
   const file = dir('collections', `${slug(c.info.name)}-${id.slice(0, 8)}.postman_collection.json`)
   const old = collectionFiles.get(id)
   writeJSON(file, c)
-  if (old && old !== file && fs.existsSync(old)) fs.unlinkSync(old)
+  if (old && old !== file) removeFile(old)
   collectionFiles.set(id, file)
 }
 
 export function deleteCollection(id: string) {
   const file = collectionFiles.get(id)
-  if (file && fs.existsSync(file)) fs.unlinkSync(file)
+  if (file) removeFile(file)
   collectionFiles.delete(id)
 }
 
 export function saveEnvironment(e: Environment) {
   const file = dir('environments', `${slug(e.name)}-${e.id.slice(0, 8)}.postman_environment.json`)
   const old = environmentFiles.get(e.id)
-  writeJSON(file, { id: e.id, name: e.name, values: e.values, _postman_variable_scope: 'environment' })
-  if (old && old !== file && fs.existsSync(old)) fs.unlinkSync(old)
+  writeJSON(file, { id: e.id, name: e.name, values: splitSecrets(e.values, `env:${e.id}`), _postman_variable_scope: 'environment' })
+  if (old && old !== file) removeFile(old)
   environmentFiles.set(e.id, file)
 }
 
 export function deleteEnvironment(id: string) {
   const file = environmentFiles.get(id)
-  if (file && fs.existsSync(file)) fs.unlinkSync(file)
+  if (file) removeFile(file)
   environmentFiles.delete(id)
+  secrets.deleteScope(`env:${id}`)
 }
 
 export function saveGlobals(values: EnvValue[]) {
   writeJSON(dir('globals.postman_globals.json'), {
     id: 'globals',
     name: 'Globals',
-    values,
+    values: splitSecrets(values, globalsScope()),
     _postman_variable_scope: 'globals'
   })
 }

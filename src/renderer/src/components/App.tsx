@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Cookie, Eye, Globe2, Layers, PanelLeft, Plus, Radio, Settings, Terminal, Upload, Zap } from 'lucide-react'
+import { Cookie, Eye, Globe2, Layers, PanelLeft, Plus, Radio, Search, Settings, Terminal, Upload, Zap } from 'lucide-react'
 import { api } from '../api'
 import {
   chooseWorkspace,
@@ -18,12 +18,16 @@ import {
   toggleConsole,
   toggleSidebar,
   applyTheme,
+  handleMockEvent,
+  setPalette,
+  syncFromDisk,
   useStore
 } from '../store'
 import { CollectionView } from './CollectionView'
 import { ConsolePanel } from './ConsolePanel'
 import { EnvironmentView, GlobalsView } from './EnvironmentView'
 import { Modals } from './Modals'
+import { Palette } from './Palette'
 import { handleRtEvent, RealtimeView } from './RealtimeView'
 import { RequestView } from './RequestView'
 import { RunnerView } from './RunnerView'
@@ -32,6 +36,8 @@ import { TabsBar } from './TabsBar'
 import { useMenu } from './ui'
 import logo64 from '../assets/logo-64.png'
 import logo256 from '../assets/logo-256.png'
+
+const isMac = navigator.platform.toLowerCase().includes('mac')
 
 function Toasts() {
   const [list, setList] = useState<{ id: number; message: string; kind: string }[]>([])
@@ -146,8 +152,8 @@ function Welcome() {
         ))}
       </div>
       <div className="hint" style={{ textAlign: 'center', lineHeight: 2 }}>
-        <span className="kbd">⌘T</span> nova aba · <span className="kbd">⌘Enter</span> enviar · <span className="kbd">⌘S</span> salvar · <span className="kbd">⌘O</span> importar ·{' '}
-        <span className="kbd">⌥⌘C</span> console
+        <span className="kbd">⌘T</span> nova aba · <span className="kbd">⌘Enter</span> enviar · <span className="kbd">⌘S</span> salvar ·{' '}
+        <span className="kbd">⌘O</span> importar · <span className="kbd">⌘K</span> buscar · <span className="kbd">⌥⌘C</span> console
       </div>
     </div>
   )
@@ -180,6 +186,8 @@ export default function App() {
   useEffect(() => {
     init()
     const offRt = api.rt.onEvent(handleRtEvent)
+    const offMock = api.mock.onEvent(handleMockEvent)
+    const offDisk = api.onWorkspaceChanged((files) => syncFromDisk(files))
     const mq = matchMedia('(prefers-color-scheme: dark)')
     mq.addEventListener('change', applyTheme)
     const active = () => useStore.getState().activeTabId
@@ -195,8 +203,15 @@ export default function App() {
       if (id === 'settings') openModal('settings')
       if (id === 'choose-workspace') chooseWorkspace()
       if (id === 'reload-workspace') reloadWorkspace()
+      if (id === 'palette') setPalette(true)
     })
     const keys = (e: KeyboardEvent) => {
+      // fallback do atalho do menu (⌘K / Ctrl+K e ⌘P), útil também em testes automatizados
+      if ((e.metaKey || e.ctrlKey) && ['k', 'p'].includes(e.key.toLowerCase())) {
+        e.preventDefault()
+        setPalette(true)
+        return
+      }
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         const t = useStore.getState().tabs.find((x) => x.id === active())
         if (t?.kind === 'request' && !t.draft?.postgirl) {
@@ -208,6 +223,8 @@ export default function App() {
     document.addEventListener('keydown', keys)
     return () => {
       offRt()
+      offMock()
+      offDisk()
       offMenu()
       mq.removeEventListener('change', applyTheme)
       document.removeEventListener('keydown', keys)
@@ -245,6 +262,9 @@ export default function App() {
           {workspacePath}
         </span>
         <div className="spacer" />
+        <button className="btn sm search-btn" title="Buscar (⌘K)" onClick={() => setPalette(true)}>
+          <Search size={13} /> Buscar <span className="kbd">{isMac ? '⌘K' : 'Ctrl+K'}</span>
+        </button>
         <EnvSelector />
         <button className="icon-btn" title="Cookies" onClick={() => openModal('cookies')}>
           <Cookie size={15} />
@@ -274,6 +294,7 @@ export default function App() {
         </div>
       </div>
       <Modals />
+      <Palette />
       <Toasts />
     </div>
   )

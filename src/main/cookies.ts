@@ -1,7 +1,10 @@
 import fs from 'fs'
 import { CookieJar } from '@postman/tough-cookie'
 import type { CookieInfo } from '@shared/types'
+import { toCookieInfo } from '../core/engine'
 import { cookieFile, writeJSON } from './storage'
+
+export { toCookieInfo }
 
 let jar: CookieJar | null = null
 
@@ -22,18 +25,6 @@ export function resetJar() {
 
 export function persistJar() {
   if (jar) writeJSON(cookieFile(), jar.serializeSync())
-}
-
-export function toCookieInfo(c: any): CookieInfo {
-  return {
-    key: c.key ?? c.name,
-    value: c.value,
-    domain: c.domain,
-    path: c.path,
-    expires: c.expires && c.expires !== 'Infinity' ? new Date(c.expires).toISOString() : undefined,
-    httpOnly: !!c.httpOnly,
-    secure: !!c.secure
-  }
 }
 
 export function listCookies(): CookieInfo[] {

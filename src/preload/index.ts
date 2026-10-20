@@ -43,6 +43,14 @@ const api = {
   readText: invoke('file:read-text'),
   pathForFile: (f: File) => webUtils.getPathForFile(f),
   onMenu: on('menu'),
+  onWorkspaceChanged: on('workspace:changed'),
+  mock: {
+    start: invoke('mock:start'),
+    update: invoke('mock:update'),
+    stop: invoke('mock:stop'),
+    status: invoke('mock:status'),
+    onEvent: on('mock:event')
+  },
   rt: {
     ws: invoke('rt:ws'),
     io: invoke('rt:io'),

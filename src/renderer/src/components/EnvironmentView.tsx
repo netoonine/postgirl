@@ -29,13 +29,25 @@ function EnvTable({ values, onChange }: { values: EnvValue[]; onChange: (v: EnvV
           const secret = r.type === 'secret'
           return (
             <tr key={i} className={r.enabled === false ? 'disabled' : ''}>
-              <td className="c-check">{!isNew && <input type="checkbox" checked={r.enabled !== false} onChange={(e) => update(i, { enabled: e.target.checked })} />}</td>
+              <td className="c-check">
+                {!isNew && <input type="checkbox" checked={r.enabled !== false} onChange={(e) => update(i, { enabled: e.target.checked })} />}
+              </td>
               <td>
-                <input className="cell-input" value={r.key} placeholder={isNew ? 'Adicionar variável' : ''} onChange={(e) => update(i, { key: e.target.value })} />
+                <input
+                  className="cell-input"
+                  value={r.key}
+                  placeholder={isNew ? 'Adicionar variável' : ''}
+                  onChange={(e) => update(i, { key: e.target.value })}
+                />
               </td>
               <td>
                 {!isNew && (
-                  <select className="mini-select" style={{ padding: '0 6px' }} value={secret ? 'secret' : 'default'} onChange={(e) => update(i, { type: e.target.value as any })}>
+                  <select
+                    className="mini-select"
+                    style={{ padding: '0 6px' }}
+                    value={secret ? 'secret' : 'default'}
+                    onChange={(e) => update(i, { type: e.target.value as any })}
+                  >
                     <option value="default">padrão</option>
                     <option value="secret">secreto</option>
                   </select>
@@ -93,8 +105,8 @@ export function EnvironmentView({ tab }: { tab: Tab }) {
       <div className="pane-body">
         <EnvTable values={env.values} onChange={(v) => updateEnvironment(env.id, (x) => (x.values = v))} />
         <p className="hint">
-          Use como {'{{nome}}'} em URLs, headers, corpo e autenticação. Scripts alteram valores com pm.environment.set(). Valores secretos ficam
-          mascarados na tela, mas são gravados no arquivo do ambiente: não versione segredos.
+          Use como {'{{nome}}'} em URLs, headers, corpo e autenticação. Scripts alteram valores com pm.environment.set(). Valores do tipo secreto ficam no
+          Keychain do sistema, não no arquivo do ambiente: a pasta de trabalho pode ir para o git sem vazar tokens.
         </p>
       </div>
     </div>
@@ -110,7 +122,9 @@ export function GlobalsView() {
       </div>
       <div className="pane-body">
         <EnvTable values={globals} onChange={setGlobals} />
-        <p className="hint">Valem em qualquer coleção e ambiente, com a menor prioridade. Scripts alteram com pm.globals.set().</p>
+        <p className="hint">
+          Valem em qualquer coleção e ambiente, com a menor prioridade. Scripts alteram com pm.globals.set(). Valores secretos ficam no Keychain do sistema.
+        </p>
       </div>
     </div>
   )
