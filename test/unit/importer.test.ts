@@ -53,6 +53,18 @@ describe('importText', () => {
     expect(r.collections[0].item[0].item![0].id).toBeTruthy()
   })
 
+  it('converte a extensão de protocolo do nome antigo (postgirl) para postwoman', async () => {
+    const r = await importText(
+      JSON.stringify({
+        info: { name: 'X', schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json' },
+        item: [{ name: 'ws', request: { method: 'GET', url: 'ws://x' }, postgirl: { protocol: 'websocket', config: { url: 'ws://x' } } }]
+      })
+    )
+    const it0 = r.collections[0].item[0] as any
+    expect(it0.postwoman).toEqual({ protocol: 'websocket', config: { url: 'ws://x' } })
+    expect(it0.postgirl).toBeUndefined()
+  })
+
   it('reporta texto que não reconhece', async () => {
     const r = await importText('isso não é nada')
     expect(r.collections).toEqual([])

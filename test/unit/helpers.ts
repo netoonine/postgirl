@@ -23,7 +23,7 @@ export function demoEnv(): Environment {
 }
 
 export const ctx = (network: Partial<NetworkSettings> = {}): EngineContext => ({
-  userAgent: 'Postgirl-Test',
+  userAgent: 'Postwoman-Test',
   network: { ...DEFAULT_NETWORK, proxy: { ...DEFAULT_NETWORK.proxy }, ...network }
 })
 

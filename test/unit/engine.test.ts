@@ -27,7 +27,7 @@ describe('sendRequest', () => {
   it('herda o bearer token da coleção e usa User-Agent próprio', async () => {
     const r = await sendRequest(ctx(), { runId: '2', collection: demoCollection(srv.url), itemId: DEMO_IDS.bearer, environment: demoEnv(), globals: [] })
     expect(body(r).token).toBe('abc123')
-    expect(r.sent?.headers.find((h) => h.key.toLowerCase() === 'user-agent')?.value).toBe('Postgirl-Test')
+    expect(r.sent?.headers.find((h) => h.key.toLowerCase() === 'user-agent')?.value).toBe('Postwoman-Test')
     expect(r.sent?.headers.some((h) => h.key.toLowerCase() === 'postman-token')).toBe(false)
   })
 

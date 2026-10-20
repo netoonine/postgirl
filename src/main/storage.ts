@@ -19,9 +19,24 @@ const HISTORY_LIMIT = 300
 
 const settingsFile = () => path.join(app.getPath('userData'), 'settings.json')
 
+/** ~/Postwoman; quem usava a v0.2.0 (Postgirl) continua na pasta antiga se ela tiver dados. */
+function defaultWorkspace() {
+  const current = path.join(os.homedir(), 'Postwoman')
+  const legacy = path.join(os.homedir(), 'Postgirl')
+  const hasData = (d: string) =>
+    ['collections', 'environments'].some((sub) => {
+      try {
+        return fs.readdirSync(path.join(d, sub)).some((f) => f.endsWith('.json'))
+      } catch {
+        return false
+      }
+    })
+  return !fs.existsSync(current) && hasData(legacy) ? legacy : current
+}
+
 const defaultSettings = (): Settings => ({
   ...DEFAULT_NETWORK,
-  workspacePath: process.env.POSTGIRL_USER_DATA ? path.join(process.env.POSTGIRL_USER_DATA, 'workspace') : path.join(os.homedir(), 'Postgirl'),
+  workspacePath: process.env.POSTWOMAN_USER_DATA ? path.join(process.env.POSTWOMAN_USER_DATA, 'workspace') : defaultWorkspace(),
   theme: 'system',
   layout: 'vertical'
 })

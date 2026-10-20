@@ -69,7 +69,7 @@ export interface MockState {
   log: MockLogEntry[]
 }
 
-const UI_KEY = 'postgirl.ui'
+const UI_KEY = 'postwoman.ui'
 
 const initial: State = {
   ready: false,
@@ -131,7 +131,7 @@ useStore.subscribe(() => {
 
 function restoreUi() {
   try {
-    const ui = JSON.parse(localStorage.getItem(UI_KEY) || 'null')
+    const ui = JSON.parse(localStorage.getItem(UI_KEY) || localStorage.getItem('postgirl.ui') || 'null')
     if (!ui || ui.workspacePath !== get().workspacePath) return
     const s = get()
     const tabs: Tab[] = (ui.tabs || []).filter((t: Tab) => {
@@ -255,7 +255,7 @@ export const confirmDialog = (title: string, message: string, danger = false, ok
   openModal<boolean>('confirm', { title, message, danger, okLabel })
 
 export const toast = (message: string, kind: 'info' | 'error' = 'info') =>
-  window.dispatchEvent(new CustomEvent('postgirl-toast', { detail: { message, kind } }))
+  window.dispatchEvent(new CustomEvent('postwoman-toast', { detail: { message, kind } }))
 
 // ---------------- coleções ----------------
 
@@ -543,7 +543,7 @@ export function newItemFor(protocol: Protocol): PMItem {
   const names: Record<string, string> = { websocket: 'WebSocket', socketio: 'Socket.IO', mqtt: 'MQTT', grpc: 'gRPC' }
   return {
     ...newRequestItem(`Nova ${names[protocol]}`, { method: 'GET', url: { raw: defaults[protocol].url } }),
-    postgirl: { protocol, config: defaults[protocol] }
+    postwoman: { protocol, config: defaults[protocol] }
   } as PMItem
 }
 
@@ -611,7 +611,7 @@ export async function closeTab(id: string) {
     if (r === 'save' && !(await saveTab(id))) return
   }
   if (t.runId) api.cancel(t.runId)
-  if (t.draft?.postgirl) api.rt.disconnect(t.id)
+  if (t.draft?.postwoman) api.rt.disconnect(t.id)
   const idx = get().tabs.findIndex((x) => x.id === id)
   const tabs = get().tabs.filter((x) => x.id !== id)
   set({ tabs, activeTabId: get().activeTabId === id ? (tabs[Math.min(idx, tabs.length - 1)]?.id ?? null) : get().activeTabId })

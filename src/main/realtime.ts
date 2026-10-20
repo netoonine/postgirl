@@ -136,7 +136,7 @@ export function mqttConnect(
   disconnect(o.connId)
   emit({ connId: o.connId, type: 'status', status: 'connecting' })
   const client: MqttClient = mqtt.connect(o.url, {
-    clientId: o.clientId || `postgirl_${Math.random().toString(16).slice(2, 10)}`,
+    clientId: o.clientId || `postwoman_${Math.random().toString(16).slice(2, 10)}`,
     username: o.username || undefined,
     password: o.password || undefined,
     protocolVersion: o.version || 4,

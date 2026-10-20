@@ -7,7 +7,7 @@ Só a versão mais recente recebe correções de segurança.
 ## Como reportar uma vulnerabilidade
 
 **Não abra issue pública.** Use o aviso de segurança privado do GitHub:
-[Report a vulnerability](https://github.com/netoonine/postgirl/security/advisories/new).
+[Report a vulnerability](https://github.com/netoonine/postwoman/security/advisories/new).
 
 Inclua o que acontece, como reproduzir e o impacto que você enxerga. A resposta inicial vem em até 7 dias; a correção é combinada com você antes de qualquer divulgação.
 

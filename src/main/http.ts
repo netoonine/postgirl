@@ -24,7 +24,7 @@ function systemProxy(url: string, cb: (err: Error | null, config?: unknown) => v
 
 function context(runId: string): EngineContext {
   return {
-    userAgent: `Postgirl/${app.getVersion()}`,
+    userAgent: `Postwoman/${app.getVersion()}`,
     network: getSettings(),
     cookieJar: getJar(),
     systemProxy,

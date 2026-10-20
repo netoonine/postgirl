@@ -9,7 +9,7 @@ let srv: TestServer
 let tmp: string
 beforeAll(async () => {
   srv = await startServer()
-  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'postgirl-cli-'))
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'postwoman-cli-'))
 })
 afterAll(async () => {
   await srv.close()
@@ -32,7 +32,7 @@ describe('parseArgs', () => {
   it('reclama de opção sem valor', () => expect(() => parseArgs(['run', '-e'])).toThrow(/precisa de um valor/))
 })
 
-describe('postgirl run', () => {
+describe('postwoman run', () => {
   it('sai com 0 quando tudo passa e grava JUnit e JSON', async () => {
     const junit = path.join(tmp, 'r.xml')
     const json = path.join(tmp, 'r.json')
@@ -52,7 +52,7 @@ describe('postgirl run', () => {
       env
     )
     expect(code).toBe(0)
-    expect(fs.readFileSync(junit, 'utf8')).toContain('<testsuites name="Demo Postgirl" tests="10" failures="0"')
+    expect(fs.readFileSync(junit, 'utf8')).toContain('<testsuites name="Demo Postwoman" tests="10" failures="0"')
     const report = JSON.parse(fs.readFileSync(json, 'utf8'))
     expect(report.summary.passed).toBe(10)
     expect(report.items).toHaveLength(8)
@@ -76,7 +76,7 @@ describe('postgirl run', () => {
     fs.mkdirSync(path.join(tmp, 'environments'), { recursive: true })
     fs.copyFileSync(fixture('demo.postman_collection.json'), path.join(tmp, 'collections', 'demo.postman_collection.json'))
     fs.copyFileSync(fixture('demo.postman_environment.json'), path.join(tmp, 'environments', 'local.postman_environment.json'))
-    const code = await main(['run', 'demo postgirl', '-w', tmp, '-e', 'Local', '--folder', 'Usuários', '--silent', '--env-var', `baseUrl=${srv.url}`])
+    const code = await main(['run', 'demo postwoman', '-w', tmp, '-e', 'Local', '--folder', 'Usuários', '--silent', '--env-var', `baseUrl=${srv.url}`])
     expect(code).toBe(0)
   })
 })

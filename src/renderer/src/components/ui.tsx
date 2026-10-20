@@ -112,7 +112,7 @@ export function Modal({
 export function useResizable(key: string, initial: number, min: number, max: number, axis: 'x' | 'y', invert = false) {
   const [size, setSize] = useState<number>(() => {
     try {
-      return Number(localStorage.getItem(`postgirl.size.${key}`)) || initial
+      return Number(localStorage.getItem(`postwoman.size.${key}`)) || initial
     } catch {
       return initial
     }
@@ -133,7 +133,7 @@ export function useResizable(key: string, initial: number, min: number, max: num
       document.removeEventListener('mouseup', up)
       setSize((s) => {
         try {
-          localStorage.setItem(`postgirl.size.${key}`, String(s))
+          localStorage.setItem(`postwoman.size.${key}`, String(s))
         } catch {
           /* tamanho só não é lembrado */
         }

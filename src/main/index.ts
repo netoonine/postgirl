@@ -20,7 +20,7 @@ function createWindow() {
     height: 900,
     minWidth: 900,
     minHeight: 600,
-    title: 'Postgirl',
+    title: 'Postwoman',
     // macOS: barra integrada com os botões de janela; Windows/Linux: barra nativa
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 14, y: 14 } } : { autoHideMenuBar: true }),
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#1b1b1f' : '#ffffff',
@@ -192,9 +192,30 @@ function registerIpc() {
   ipcMain.handle('rt:disconnect', (_e, connId: string) => rt.disconnect(connId))
 }
 
-app.setName('Postgirl')
+app.setName('Postwoman')
 // pasta de dados alternativa (testes automatizados, perfis separados)
-if (process.env.POSTGIRL_USER_DATA) app.setPath('userData', process.env.POSTGIRL_USER_DATA)
+if (process.env.POSTWOMAN_USER_DATA) app.setPath('userData', process.env.POSTWOMAN_USER_DATA)
+else migrateLegacyUserData()
+
+/**
+ * Até a v0.2.0 o app se chamava Postgirl e guardava configurações em outra pasta.
+ * Copia o que importa uma única vez. Segredos criptografados com a chave antiga do Keychain
+ * não podem ser lidos pela nova e precisam ser preenchidos de novo.
+ */
+function migrateLegacyUserData() {
+  const now = app.getPath('userData')
+  const legacy = path.join(app.getPath('appData'), 'Postgirl')
+  if (fs.existsSync(path.join(now, 'settings.json')) || !fs.existsSync(legacy)) return
+  try {
+    fs.mkdirSync(now, { recursive: true })
+    for (const f of ['settings.json', 'secrets.json', 'Local Storage']) {
+      const from = path.join(legacy, f)
+      if (fs.existsSync(from)) fs.cpSync(from, path.join(now, f), { recursive: true })
+    }
+  } catch {
+    // migração é só conveniência: sem ela o app abre com as configurações padrão
+  }
+}
 app.whenReady().then(() => {
   // no app empacotado o ícone vem do .icns; em dev o Dock mostraria o do Electron
   const devIcon = path.join(app.getAppPath(), 'resources/brand/icon-1024.png')

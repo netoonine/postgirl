@@ -2,10 +2,14 @@ import { randomUUID } from 'crypto'
 import type { PMCollection, PMItem } from '@shared/types'
 import { COLLECTION_SCHEMA } from '@shared/types'
 
-/** Garante ids em todos os itens: o Postgirl identifica requisições e pastas por id. */
+/** Garante ids em todos os itens: o Postwoman identifica requisições e pastas por id. */
 function ensureIds(items: PMItem[] = []) {
   for (const it of items) {
     if (!it.id) it.id = randomUUID()
+    // até a v0.2.0 o app se chamava Postgirl e a extensão de protocolo usava esse nome
+    const legacy = it as PMItem & { postgirl?: PMItem['postwoman'] }
+    if (legacy.postgirl && !it.postwoman) it.postwoman = legacy.postgirl
+    delete legacy.postgirl
     if (it.item) ensureIds(it.item)
   }
 }

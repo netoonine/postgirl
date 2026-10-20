@@ -1,6 +1,6 @@
 # Código de conduta
 
-Queremos que o Postgirl seja um lugar bom para qualquer pessoa contribuir, independente de experiência, gênero, identidade, orientação, deficiência, aparência, etnia, religião, idade ou nacionalidade.
+Queremos que o Postwoman seja um lugar bom para qualquer pessoa contribuir, independente de experiência, gênero, identidade, orientação, deficiência, aparência, etnia, religião, idade ou nacionalidade.
 
 ## O que esperamos
 
@@ -18,6 +18,6 @@ Queremos que o Postgirl seja um lugar bom para qualquer pessoa contribuir, indep
 
 ## Como reportar
 
-Abra um [aviso privado](https://github.com/netoonine/postgirl/security/advisories/new) com "Conduta" no título: só quem mantém o projeto vê. Toda denúncia é tratada com sigilo. Quem violar estas regras pode receber um aviso, ser bloqueado temporariamente ou removido do projeto.
+Abra um [aviso privado](https://github.com/netoonine/postwoman/security/advisories/new) com "Conduta" no título: só quem mantém o projeto vê. Toda denúncia é tratada com sigilo. Quem violar estas regras pode receber um aviso, ser bloqueado temporariamente ou removido do projeto.
 
 Inspirado no [Contributor Covenant 2.1](https://www.contributor-covenant.org/pt-br/version/2/1/code_of_conduct/).

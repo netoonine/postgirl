@@ -40,7 +40,7 @@ function queryOf(url: any): { key: string; value: string }[] {
 export function buildRoutes(c: PMCollection): MockRoute[] {
   const routes: MockRoute[] = []
   eachRequest(c.item, (it: PMItem) => {
-    if (it.postgirl || !it.request) return
+    if (it.postwoman || !it.request) return
     for (const ex of it.response || []) {
       const req = ex.originalRequest || it.request
       routes.push({

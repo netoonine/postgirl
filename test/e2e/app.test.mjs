@@ -21,7 +21,7 @@ const shot = async (name) => shots && (await page.screenshot({ path: path.join(s
 
 before(async () => {
   srv = await startTestServer(0)
-  userData = fs.mkdtempSync(path.join(os.tmpdir(), 'postgirl-e2e-'))
+  userData = fs.mkdtempSync(path.join(os.tmpdir(), 'postwoman-e2e-'))
   ws = path.join(userData, 'workspace')
   fs.mkdirSync(path.join(ws, 'collections'), { recursive: true })
   fs.mkdirSync(path.join(ws, 'environments'), { recursive: true })
@@ -33,10 +33,10 @@ before(async () => {
 
   app = await electron.launch({
     args: [root, ...(process.platform === 'linux' ? ['--no-sandbox'] : [])],
-    env: { ...process.env, POSTGIRL_USER_DATA: userData, POSTGIRL_DISABLE_KEYCHAIN: '1', ELECTRON_RENDERER_URL: '' }
+    env: { ...process.env, POSTWOMAN_USER_DATA: userData, POSTWOMAN_DISABLE_KEYCHAIN: '1', ELECTRON_RENDERER_URL: '' }
   })
   page = await app.firstWindow()
-  await page.waitForSelector('text=Demo Postgirl')
+  await page.waitForSelector('text=Demo Postwoman')
 })
 
 after(async () => {
@@ -47,7 +47,7 @@ after(async () => {
 
 test('envia uma requisição da coleção com o ambiente ativo e roda os testes', async () => {
   await page.locator('.topbar select').selectOption({ label: 'Local' })
-  await page.locator('.tree-row', { hasText: 'Demo Postgirl' }).click()
+  await page.locator('.tree-row', { hasText: 'Demo Postwoman' }).click()
   await page.locator('.tree-row', { hasText: 'Usuários' }).first().click()
   await page.locator('.tree-row', { hasText: 'Listar usuários' }).click()
   await page.getByRole('button', { name: 'Enviar', exact: true }).click()
@@ -66,7 +66,7 @@ test('a busca rápida (⌘K) abre requisições pelo nome', async () => {
 })
 
 test('o mock server responde com os exemplos salvos', async () => {
-  await page.locator('.tree-row', { hasText: 'Demo Postgirl' }).dblclick()
+  await page.locator('.tree-row', { hasText: 'Demo Postwoman' }).dblclick()
   await page.locator('.subtab', { hasText: 'Mock server' }).click()
   await page.locator('input[type=number]').fill('0')
   await page.getByRole('button', { name: 'Iniciar mock' }).click()

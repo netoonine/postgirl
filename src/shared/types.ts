@@ -1,5 +1,5 @@
 // Formato de dados: segue o schema Postman Collection v2.1, para que as coleções
-// salvas pelo Postgirl abram no Postman e vice-versa.
+// salvas pelo Postwoman abram no Postman e vice-versa.
 
 export const COLLECTION_SCHEMA = 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
 
@@ -60,7 +60,7 @@ export interface PMRequest {
 export type Protocol = 'http' | 'websocket' | 'socketio' | 'mqtt' | 'grpc'
 
 /** Extensão própria para protocolos que o schema v2.1 não cobre. O Postman ignora o campo. */
-export interface PostgirlExt {
+export interface PostwomanExt {
   protocol: Exclude<Protocol, 'http'>
   config: Record<string, any>
 }
@@ -76,7 +76,7 @@ export interface PMItem {
   variable?: KV[]
   response?: any[]
   protocolProfileBehavior?: Record<string, any>
-  postgirl?: PostgirlExt
+  postwoman?: PostwomanExt
 }
 
 export interface PMCollection {

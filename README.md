@@ -1,6 +1,6 @@
-<p align="center"><img src="resources/brand/logo-256.png" width="120" alt="Postgirl"></p>
+<p align="center"><img src="resources/brand/logo-256.png" width="120" alt="Postwoman"></p>
 
-<h1 align="center">Postgirl</h1>
+<h1 align="center">Postwoman</h1>
 
 <p align="center">
   Cliente de APIs desktop, <b>local</b> e <b>open source</b>, que abre suas coleções do Postman.<br>
@@ -8,36 +8,36 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/netoonine/postgirl/actions/workflows/ci.yml"><img src="https://github.com/netoonine/postgirl/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/netoonine/postgirl/releases"><img src="https://img.shields.io/github/v/release/netoonine/postgirl?include_prereleases" alt="Release"></a>
+  <a href="https://github.com/netoonine/postwoman/actions/workflows/ci.yml"><img src="https://github.com/netoonine/postwoman/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/netoonine/postwoman/releases"><img src="https://img.shields.io/github/v/release/netoonine/postwoman?include_prereleases" alt="Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licen%C3%A7a-MIT-blue" alt="Licença MIT"></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-bem--vindos-brightgreen" alt="PRs bem-vindos"></a>
 </p>
 
-<p align="center"><img src="docs/screenshots/requisicao.png" width="900" alt="Postgirl enviando uma requisição"></p>
+<p align="center"><img src="docs/screenshots/requisicao.png" width="900" alt="Postwoman enviando uma requisição"></p>
 
-> 🇺🇸 **English:** Postgirl is a free, local-first, open source desktop API client (Electron) that opens Postman collections as-is. HTTP, GraphQL, WebSocket, Socket.IO, MQTT and gRPC, `pm.*` scripts, collection runner, CLI for CI, and a local mock server. Docs are in Portuguese for now; issues and PRs in English are welcome.
+> 🇺🇸 **English:** Postwoman is a free, local-first, open source desktop API client (Electron) that opens Postman collections as-is. HTTP, GraphQL, WebSocket, Socket.IO, MQTT and gRPC, `pm.*` scripts, collection runner, CLI for CI, and a local mock server. Docs are in Portuguese for now; issues and PRs in English are welcome.
 
 ## Por que
 
 - **Seus dados são arquivos.** Coleções e ambientes ficam no formato Postman v2.1 numa pasta sua. Dá para versionar no git, revisar em PR e abrir no Postman.
 - **Segredos não vazam para o git.** Variáveis do tipo _secreto_ ficam no Keychain do sistema; o arquivo guarda só o nome.
 - **Mesmo motor do Postman.** Usa o `postman-runtime` (open source), então scripts `pm.*`, testes e herança de autenticação funcionam igual.
-- **Roda no CI.** A CLI `postgirl run` executa as coleções e gera relatórios JUnit e JSON.
+- **Roda no CI.** A CLI `postwoman run` executa as coleções e gera relatórios JUnit e JSON.
 
 ## Instalar
 
-Baixe a versão para o seu sistema em **[Releases](https://github.com/netoonine/postgirl/releases)**:
+Baixe a versão para o seu sistema em **[Releases](https://github.com/netoonine/postwoman/releases)**:
 
 | Sistema | Arquivo |
 | --- | --- |
-| macOS (Apple Silicon / Intel) | `Postgirl-x.y.z-mac-arm64.dmg` / `-mac-x64.dmg` |
-| Windows | `Postgirl-x.y.z-win-x64.exe` |
+| macOS (Apple Silicon / Intel) | `Postwoman-x.y.z-mac-arm64.dmg` / `-mac-x64.dmg` |
+| Windows | `Postwoman-x.y.z-win-x64.exe` |
 | Linux | `.AppImage` ou `.deb` |
 
 Os instaladores ainda **não são assinados**, então o sistema avisa na primeira vez:
 
-- **macOS:** se aparecer "Postgirl está danificado" ou "não pode ser aberto", rode `xattr -cr /Applications/Postgirl.app` no Terminal e abra de novo.
+- **macOS:** se aparecer "Postwoman está danificado" ou "não pode ser aberto", rode `xattr -cr /Applications/Postwoman.app` no Terminal e abra de novo.
 - **Windows:** no aviso do SmartScreen, clique em _Mais informações_ → _Executar assim mesmo_.
 
 ## O que tem
@@ -47,7 +47,7 @@ Os instaladores ainda **não são assinados**, então o sistema avisa na primeir
 - **Scripts** pré-requisição e pós-resposta com a API `pm.*` (testes, variáveis, `pm.sendRequest`, visualizer)
 - **Coleções, pastas, ambientes**, variáveis globais e de coleção, com `{{variáveis}}` destacadas e autocompletar
 - **Runner** com iterações, intervalo e arquivo de dados CSV/JSON
-- **CLI** para terminal e CI (`postgirl run`, relatórios JUnit/JSON)
+- **CLI** para terminal e CI (`postwoman run`, relatórios JUnit/JSON)
 - **Mock server local** que responde com os exemplos salvos
 - **Busca rápida** (⌘K / Ctrl+K) em requisições, ambientes e comandos
 - **Geração de código**: cURL, fetch, axios, Python, Go, Java, C#, PHP, Ruby, Swift e outros
@@ -64,21 +64,21 @@ Os instaladores ainda **não são assinados**, então o sistema avisa na primeir
 
 ## CLI
 
-A CLI usa o mesmo motor do app e roda coleções exportadas do Postman ou do Postgirl.
+A CLI usa o mesmo motor do app e roda coleções exportadas do Postman ou do Postwoman.
 
 ```bash
 # dentro do repositório
 npm install && npm run build
-npm link            # deixa o comando `postgirl` disponível no terminal
+npm link            # deixa o comando `postwoman` disponível no terminal
 
-postgirl run minha-api.postman_collection.json -e local.postman_environment.json
-postgirl run "Minha API" -w ~/Postgirl -e Produção --env-var token=$API_TOKEN \
+postwoman run minha-api.postman_collection.json -e local.postman_environment.json
+postwoman run "Minha API" -w ~/Postwoman -e Produção --env-var token=$API_TOKEN \
   -r cli,junit --reporter-junit-export resultados.xml
-postgirl mock "Minha API" -p 4010
-postgirl list
+postwoman mock "Minha API" -p 4010
+postwoman list
 ```
 
-O código de saída é `0` quando tudo passa e `1` quando algum teste ou requisição falha, então dá para usar direto no CI. `postgirl --help` mostra todas as opções (iterações, dados CSV/JSON, `--folder`, `--bail`, proxy, certificados).
+O código de saída é `0` quando tudo passa e `1` quando algum teste ou requisição falha, então dá para usar direto no CI. `postwoman --help` mostra todas as opções (iterações, dados CSV/JSON, `--folder`, `--bail`, proxy, certificados).
 
 <details>
 <summary>Exemplo com GitHub Actions</summary>
@@ -86,16 +86,16 @@ O código de saída é `0` quando tudo passa e `1` quando algum teste ou requisi
 ```yaml
 - uses: actions/checkout@v7
 - uses: actions/checkout@v7
-  with: { repository: netoonine/postgirl, path: .postgirl }
-- run: cd .postgirl && npm ci && npm run build
-- run: node .postgirl/bin/postgirl.js run api/minha-api.postman_collection.json -e api/ci.postman_environment.json --env-var token=${{ secrets.API_TOKEN }} -r cli,junit --reporter-junit-export resultados.xml
+  with: { repository: netoonine/postwoman, path: .postwoman }
+- run: cd .postwoman && npm ci && npm run build
+- run: node .postwoman/bin/postwoman.js run api/minha-api.postman_collection.json -e api/ci.postman_environment.json --env-var token=${{ secrets.API_TOKEN }} -r cli,junit --reporter-junit-export resultados.xml
 ```
 
 </details>
 
 ## Onde ficam os dados
 
-Tudo em arquivos na pasta de trabalho (padrão `~/Postgirl`, trocável em Configurações):
+Tudo em arquivos na pasta de trabalho (padrão `~/Postwoman`, trocável em Configurações):
 
 ```
 collections/<nome>-<id>.postman_collection.json   # formato Postman v2.1, abre no Postman
@@ -112,8 +112,8 @@ Para versionar a pasta com git, coloque `cookies.json` e `history.json` no `.git
 Precisa de Node 22 ou mais novo.
 
 ```bash
-git clone https://github.com/netoonine/postgirl.git
-cd postgirl
+git clone https://github.com/netoonine/postwoman.git
+cd postwoman
 npm install
 npm run dev          # abre o app com recarga automática
 ```
@@ -130,17 +130,17 @@ npm run dev          # abre o app com recarga automática
 
 O `npm install` já baixa o binário do Electron (`postinstall`). Se o app não abrir, rode `npx install-electron`.
 
-Quer ajudar? Leia o **[guia de contribuição](CONTRIBUTING.md)** e procure issues marcadas com [`good first issue`](https://github.com/netoonine/postgirl/labels/good%20first%20issue).
+Quer ajudar? Leia o **[guia de contribuição](CONTRIBUTING.md)** e procure issues marcadas com [`good first issue`](https://github.com/netoonine/postwoman/labels/good%20first%20issue).
 
 ## Arquitetura
 
 ```
 src/core      motor sem Electron: execução (postman-runtime), mock server, importador, codegen
-src/cli       CLI (postgirl run / mock / list), usa src/core
+src/cli       CLI (postwoman run / mock / list), usa src/core
 src/main      processo principal do Electron: janela, IPC, pasta de trabalho, cofre de segredos, protocolos em tempo real
 src/preload   ponte IPC exposta como window.api
 src/renderer  interface React; estado em store.ts (zustand)
-src/shared    tipos compartilhados (schema Postman Collection v2.1 + extensão "postgirl")
+src/shared    tipos compartilhados (schema Postman Collection v2.1 + extensão "postwoman")
 test/         unitários (vitest), E2E (Playwright + Electron) e servidor de teste
 ```
 
@@ -148,7 +148,7 @@ Mais detalhes em [CONTRIBUTING.md](CONTRIBUTING.md#como-o-código-está-organiza
 
 ## Aviso
 
-O Postgirl é um projeto independente e **não tem relação com a Postman, Inc.** "Postman" é marca da Postman, Inc. e aparece aqui só para indicar compatibilidade de formato. A interface é código próprio; do ecossistema Postman são usadas apenas bibliotecas open source publicadas no npm (`postman-runtime`, `postman-collection`, `postman-code-generators`, `openapi-to-postmanv2`, `curl-to-postmanv2`, `postman-collection-transformer`), todas sob licença Apache-2.0.
+O Postwoman é um projeto independente e **não tem relação com a Postman, Inc.** nem com o [Hoppscotch](https://github.com/hoppscotch/hoppscotch), que usou o nome Postwoman até 2020. "Postman" é marca da Postman, Inc. e aparece aqui só para indicar compatibilidade de formato. A interface é código próprio; do ecossistema Postman são usadas apenas bibliotecas open source publicadas no npm (`postman-runtime`, `postman-collection`, `postman-code-generators`, `openapi-to-postmanv2`, `curl-to-postmanv2`, `postman-collection-transformer`), todas sob licença Apache-2.0.
 
 ## Licença
 

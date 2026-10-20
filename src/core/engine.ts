@@ -59,7 +59,7 @@ function prepareItems(items: PMItem[] = [], userAgent: string): any[] {
   })
 }
 
-export function toSdkCollection(c: PMCollection, userAgent = 'Postgirl') {
+export function toSdkCollection(c: PMCollection, userAgent = 'Postwoman') {
   const json: any = { ...c, item: prepareItems(c.item, userAgent) }
   if (json.auth?.type === 'inherit') delete json.auth
   return new sdk.Collection(json)

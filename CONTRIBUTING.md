@@ -1,14 +1,14 @@
 # Como contribuir
 
-Obrigado por querer ajudar! Este guia explica como montar o ambiente, como mandar uma mudança e como o código está organizado. Se travar em qualquer passo, abra uma issue ou pergunte nas [Discussions](https://github.com/netoonine/postgirl/discussions).
+Obrigado por querer ajudar! Este guia explica como montar o ambiente, como mandar uma mudança e como o código está organizado. Se travar em qualquer passo, abra uma issue ou pergunte nas [Discussions](https://github.com/netoonine/postwoman/discussions).
 
 ## Primeiros passos
 
 1. Faça um **fork** do repositório no GitHub (botão _Fork_) e clone o seu fork:
    ```bash
-   git clone https://github.com/SEU-USUARIO/postgirl.git
-   cd postgirl
-   git remote add upstream https://github.com/netoonine/postgirl.git
+   git clone https://github.com/SEU-USUARIO/postwoman.git
+   cd postwoman
+   git remote add upstream https://github.com/netoonine/postwoman.git
    ```
 2. Instale e rode:
    ```bash
@@ -23,8 +23,8 @@ Obrigado por querer ajudar! Este guia explica como montar o ambiente, como manda
 
 ## Escolhendo o que fazer
 
-- Issues com [`good first issue`](https://github.com/netoonine/postgirl/labels/good%20first%20issue) são pequenas e boas para começar.
-- [`help wanted`](https://github.com/netoonine/postgirl/labels/help%20wanted) são maiores e ainda sem dono.
+- Issues com [`good first issue`](https://github.com/netoonine/postwoman/labels/good%20first%20issue) são pequenas e boas para começar.
+- [`help wanted`](https://github.com/netoonine/postwoman/labels/help%20wanted) são maiores e ainda sem dono.
 - Para algo grande (feature nova, mudança de formato de arquivo, dependência nova), **abra uma issue antes** e combine a abordagem. Isso evita trabalho jogado fora.
 - Comente na issue que você vai pegar, para ninguém duplicar.
 
@@ -59,7 +59,7 @@ Para manter o fork atualizado: `git fetch upstream && git rebase upstream/main`.
 | Pasta | O que tem | Pode usar Electron? |
 | --- | --- | --- |
 | `src/core` | motor de execução (`engine.ts`, sobre o `postman-runtime`), mock server, importador, codegen, utilitários de coleção | **não**: roda no app e na CLI |
-| `src/cli` | CLI `postgirl` (`run`, `mock`, `list`) e relatórios JUnit/JSON | não |
+| `src/cli` | CLI `postwoman` (`run`, `mock`, `list`) e relatórios JUnit/JSON | não |
 | `src/main` | processo principal: janela, menu, IPC (`index.ts`), pasta de trabalho (`storage.ts`), cofre de segredos (`secrets.ts`), observador de arquivos (`watcher.ts`), WebSocket/Socket.IO/MQTT/gRPC (`realtime.ts`), OAuth 2 | sim |
 | `src/preload` | ponte IPC exposta como `window.api` | sim (só `contextBridge`) |
 | `src/renderer` | interface React; estado global em `store.ts` (zustand); componentes em `components/` | não (só via `window.api`) |
@@ -78,12 +78,12 @@ Para adicionar uma chamada nova entre interface e processo principal:
 
 ### Formato dos arquivos
 
-O formato salvo é o **Postman Collection v2.1**. Protocolos que o schema não cobre (WebSocket, MQTT, gRPC, Socket.IO) usam o campo extra `postgirl: { protocol, config }` no item; o Postman ignora esse campo. "Herdar autenticação do pai" é gravado como ausência do campo `auth`, igual ao Postman.
+O formato salvo é o **Postman Collection v2.1**. Protocolos que o schema não cobre (WebSocket, MQTT, gRPC, Socket.IO) usam o campo extra `postwoman: { protocol, config }` no item; o Postman ignora esse campo. "Herdar autenticação do pai" é gravado como ausência do campo `auth`, igual ao Postman.
 
 ## Testes
 
 - `npm test`: unitários. Rápidos, rodam um servidor de teste local, sem internet.
-- `npm run test:e2e`: abre o Electron com uma pasta de dados temporária (`POSTGIRL_USER_DATA`) e o Keychain desligado (`POSTGIRL_DISABLE_KEYCHAIN=1`). Precisa de `npm run build` antes. Para guardar screenshots: `E2E_SCREENSHOTS=./shots npm run test:e2e`.
+- `npm run test:e2e`: abre o Electron com uma pasta de dados temporária (`POSTWOMAN_USER_DATA`) e o Keychain desligado (`POSTWOMAN_DISABLE_KEYCHAIN=1`). Precisa de `npm run build` antes. Para guardar screenshots: `E2E_SCREENSHOTS=./shots npm run test:e2e`.
 - `npm run test:server`: sobe o servidor de teste na porta 4555 para testar na mão (`/get`, `/post`, `/status/404`, `/delay/1000`, `/cookies/set?a=1`, `/bearer`, `/users/:id`, WebSocket em `/ws`).
 
 ## Gerando o instalador
@@ -92,7 +92,7 @@ O formato salvo é o **Postman Collection v2.1**. Protocolos que o schema não c
 
 ## Reportando bugs e segurança
 
-- Bugs: abra uma [issue](https://github.com/netoonine/postgirl/issues/new/choose) com passos para reproduzir.
+- Bugs: abra uma [issue](https://github.com/netoonine/postwoman/issues/new/choose) com passos para reproduzir.
 - Vulnerabilidades: **não** abra issue pública; veja [SECURITY.md](SECURITY.md).
 
 ## Licença das contribuições

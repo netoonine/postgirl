@@ -37,7 +37,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
       - uses: actions/upload-artifact@v7
         with:
-          name: postgirl-${{ matrix.os }}
+          name: postwoman-${{ matrix.os }}
           path: |
             dist/*.dmg
             dist/*.zip
@@ -63,7 +63,7 @@ jobs:
           cat >> notes.md <<'TXT'
 
           ---
-          Os instaladores ainda não são assinados. No macOS, se aparecer "danificado", rode `xattr -cr /Applications/Postgirl.app`. No Windows, no aviso do SmartScreen, clique em "Mais informações" → "Executar assim mesmo".
+          Os instaladores ainda não são assinados. No macOS, se aparecer "danificado", rode `xattr -cr /Applications/Postwoman.app`. No Windows, no aviso do SmartScreen, clique em "Mais informações" → "Executar assim mesmo".
           TXT
       - uses: softprops/action-gh-release@v3
         with:

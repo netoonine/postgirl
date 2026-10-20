@@ -48,8 +48,8 @@ function Toasts() {
       setList((l) => [...l, { id, message, kind }])
       setTimeout(() => setList((l) => l.filter((t) => t.id !== id)), kind === 'error' ? 6000 : 2600)
     }
-    window.addEventListener('postgirl-toast', on)
-    return () => window.removeEventListener('postgirl-toast', on)
+    window.addEventListener('postwoman-toast', on)
+    return () => window.removeEventListener('postwoman-toast', on)
   }, [])
   return (
     <div className="toasts">
@@ -141,7 +141,7 @@ function Welcome() {
   ]
   return (
     <div className="welcome">
-      <img src={logo256} width={88} height={88} alt="Postgirl" />
+      <img src={logo256} width={88} height={88} alt="Postwoman" />
       <div style={{ fontSize: 20, fontWeight: 650, color: 'var(--fg)' }}>Nova requisição</div>
       <div className="welcome-grid">
         {cards.map((c) => (
@@ -162,7 +162,7 @@ function Welcome() {
 function Workarea() {
   const tab = useStore((s) => s.tabs.find((t) => t.id === s.activeTabId))
   let content: React.ReactNode = <Welcome />
-  if (tab?.kind === 'request') content = tab.draft?.postgirl ? <RealtimeView key={tab.id} tab={tab} /> : <RequestView key={tab.id} tab={tab} />
+  if (tab?.kind === 'request') content = tab.draft?.postwoman ? <RealtimeView key={tab.id} tab={tab} /> : <RequestView key={tab.id} tab={tab} />
   if (tab?.kind === 'collection' || tab?.kind === 'folder') content = <CollectionView key={tab.id} tab={tab} />
   if (tab?.kind === 'environment') content = <EnvironmentView key={tab.id} tab={tab} />
   if (tab?.kind === 'globals') content = <GlobalsView />
@@ -214,7 +214,7 @@ export default function App() {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         const t = useStore.getState().tabs.find((x) => x.id === active())
-        if (t?.kind === 'request' && !t.draft?.postgirl) {
+        if (t?.kind === 'request' && !t.draft?.postwoman) {
           e.preventDefault()
           sendTab(t.id)
         }
@@ -237,7 +237,7 @@ export default function App() {
     <div className="app">
       <div className="topbar">
         <span className="brand">
-          <img src={logo64} width={20} height={20} alt="" /> Postgirl
+          <img src={logo64} width={20} height={20} alt="" /> Postwoman
         </span>
         <button
           className="btn sm"

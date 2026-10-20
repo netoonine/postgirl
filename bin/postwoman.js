@@ -12,7 +12,7 @@ process.emitWarning = (warning, ...rest) => {
 
 const built = path.join(__dirname, '..', 'out', 'main', 'cli.js')
 if (!fs.existsSync(built)) {
-  console.error('Postgirl CLI ainda não foi compilada. Rode `npm run build` na raiz do projeto.')
+  console.error('Postwoman CLI ainda não foi compilada. Rode `npm run build` na raiz do projeto.')
   process.exit(2)
 }
 require(built)

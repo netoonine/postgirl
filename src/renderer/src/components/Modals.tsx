@@ -301,7 +301,7 @@ function CodegenModal({ tabId }: { tabId: string }) {
   const [langs, setLangs] = useState<CodegenLanguage[]>([])
   const [sel, setSel] = useState(() => {
     try {
-      return localStorage.getItem('postgirl.codegen') || 'curl|cURL'
+      return localStorage.getItem('postwoman.codegen') || 'curl|cURL'
     } catch {
       return 'curl|cURL'
     }
@@ -322,7 +322,7 @@ function CodegenModal({ tabId }: { tabId: string }) {
     if (!tab?.draft?.request) return
     const [lang, variant] = sel.split('|')
     try {
-      localStorage.setItem('postgirl.codegen', sel)
+      localStorage.setItem('postwoman.codegen', sel)
     } catch {
       /* preferência só não é lembrada */
     }

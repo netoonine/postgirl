@@ -9,7 +9,7 @@ type Vault = Record<string, Record<string, string>>
 
 const file = () => path.join(app.getPath('userData'), 'secrets.json')
 // testes automatizados não devem disparar o diálogo do Keychain
-const useKeychain = () => !process.env.POSTGIRL_DISABLE_KEYCHAIN && safeStorage.isEncryptionAvailable()
+const useKeychain = () => !process.env.POSTWOMAN_DISABLE_KEYCHAIN && safeStorage.isEncryptionAvailable()
 
 let cache: Vault | null = null
 

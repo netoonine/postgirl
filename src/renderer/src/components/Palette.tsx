@@ -59,8 +59,8 @@ function PaletteInner() {
             })
             walk(it.item, [...path, it.name])
           } else {
-            const method = it.postgirl ? it.postgirl.protocol.toUpperCase() : it.request?.method || 'GET'
-            const url = it.request?.url?.raw || it.postgirl?.config?.url || ''
+            const method = it.postwoman ? it.postwoman.protocol.toUpperCase() : it.request?.method || 'GET'
+            const url = it.request?.url?.raw || it.postwoman?.config?.url || ''
             out.push({
               id: `r:${it.id}`,
               title: it.name,

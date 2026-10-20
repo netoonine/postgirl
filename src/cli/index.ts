@@ -1,4 +1,4 @@
-// CLI do Postgirl: roda coleções no terminal e no CI (equivalente ao Newman) e sobe o mock server.
+// CLI do Postwoman: roda coleções no terminal e no CI (equivalente ao Newman) e sobe o mock server.
 // Usa o mesmo motor do app (src/core), sem Electron.
 import fs from 'fs'
 import os from 'os'
@@ -75,12 +75,12 @@ export function parseArgs(argv: string[]): Args {
 }
 
 const HELP = `
-${'Postgirl CLI'} ${VERSION}
+${'Postwoman CLI'} ${VERSION}
 
 Uso:
-  postgirl run <coleção> [opções]     roda uma coleção (arquivo .json ou nome na pasta de trabalho)
-  postgirl mock <coleção> [-p 4010]   sobe o mock server com os exemplos salvos
-  postgirl list                       lista coleções e ambientes da pasta de trabalho
+  postwoman run <coleção> [opções]     roda uma coleção (arquivo .json ou nome na pasta de trabalho)
+  postwoman mock <coleção> [-p 4010]   sobe o mock server com os exemplos salvos
+  postwoman list                       lista coleções e ambientes da pasta de trabalho
 
 Opções do run:
   -e, --environment <arquivo|nome>    ambiente (arquivo .postman_environment.json ou nome)
@@ -109,7 +109,7 @@ Opções do run:
       --no-color                      sem cores
 
 Pasta de trabalho (para achar coleções e ambientes pelo nome):
-  -w, --workspace <pasta>             padrão: a pasta atual se tiver collections/, senão ~/Postgirl
+  -w, --workspace <pasta>             padrão: a pasta atual se tiver collections/, senão ~/Postwoman
 
 Valores secretos do app ficam no Keychain e não estão nos arquivos: passe-os com --env-var.
 Código de saída: 0 se tudo passou, 1 se algum teste ou requisição falhou, 2 para erro de uso.
@@ -119,9 +119,9 @@ Código de saída: 0 se tudo passou, 1 se algum teste ou requisição falhou, 2 
 
 function workspaceDir(a: Args) {
   if (a.workspace) return path.resolve(a.workspace)
-  if (process.env.POSTGIRL_WORKSPACE) return path.resolve(process.env.POSTGIRL_WORKSPACE)
+  if (process.env.POSTWOMAN_WORKSPACE) return path.resolve(process.env.POSTWOMAN_WORKSPACE)
   if (fs.existsSync(path.join(process.cwd(), 'collections'))) return process.cwd()
-  return path.join(os.homedir(), 'Postgirl')
+  return path.join(os.homedir(), 'Postwoman')
 }
 
 const readJson = (f: string) => JSON.parse(fs.readFileSync(f, 'utf8'))
@@ -231,7 +231,7 @@ const fmtMs = (n = 0) => (n < 1000 ? `${Math.round(n)}ms` : `${(n / 1000).toFixe
 
 async function cmdRun(a: Args): Promise<number> {
   const ref = a._[1]
-  if (!ref) throw new UsageError('Informe a coleção: postgirl run <arquivo-ou-nome>')
+  if (!ref) throw new UsageError('Informe a coleção: postwoman run <arquivo-ou-nome>')
   const ws = workspaceDir(a)
   let collection = await loadCollection(ref, ws)
 
@@ -281,7 +281,7 @@ async function cmdRun(a: Args): Promise<number> {
   const report: RunReport = { collection: collection.info.name, environment: environment?.name, startedAt: new Date().toISOString(), items: [], console: [] }
   const started = Date.now()
 
-  log(`\n${c.bold('Postgirl')} ${c.gray(VERSION)} · ${c.bold(collection.info.name)}${environment ? c.gray(` · ambiente ${environment.name}`) : ''}`)
+  log(`\n${c.bold('Postwoman')} ${c.gray(VERSION)} · ${c.bold(collection.info.name)}${environment ? c.gray(` · ambiente ${environment.name}`) : ''}`)
 
   let lastIteration = -1
   // o console de um script chega antes do fim do item: guarda e imprime junto com ele
@@ -295,7 +295,7 @@ async function cmdRun(a: Args): Promise<number> {
 
   const done = await new Promise<Extract<RunnerEvent, { type: 'done' }>>((resolve) => {
     runCollection(
-      { userAgent: `Postgirl-CLI/${VERSION}`, network, cookieJar: new CookieJar(undefined, { looseMode: true }), onRun: (r) => (run = r) },
+      { userAgent: `Postwoman-CLI/${VERSION}`, network, cookieJar: new CookieJar(undefined, { looseMode: true }), onRun: (r) => (run = r) },
       {
         runId: 'cli',
         collection,
@@ -363,8 +363,8 @@ async function cmdRun(a: Args): Promise<number> {
     fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true })
     fs.writeFileSync(file, content)
   }
-  if (reporters.includes('json')) write(a['reporter-json-export'] || `postgirl-run-${Date.now()}.json`, JSON.stringify({ ...report, summary: s }, null, 2))
-  if (reporters.includes('junit')) write(a['reporter-junit-export'] || `postgirl-run-${Date.now()}.xml`, junitReport(report))
+  if (reporters.includes('json')) write(a['reporter-json-export'] || `postwoman-run-${Date.now()}.json`, JSON.stringify({ ...report, summary: s }, null, 2))
+  if (reporters.includes('junit')) write(a['reporter-junit-export'] || `postwoman-run-${Date.now()}.xml`, junitReport(report))
   if (a['export-environment'] && done.environment)
     write(
       a['export-environment'],
@@ -376,7 +376,7 @@ async function cmdRun(a: Args): Promise<number> {
 
 async function cmdMock(a: Args): Promise<number> {
   const ref = a._[1]
-  if (!ref) throw new UsageError('Informe a coleção: postgirl mock <arquivo-ou-nome>')
+  if (!ref) throw new UsageError('Informe a coleção: postwoman mock <arquivo-ou-nome>')
   const collection = await loadCollection(ref, workspaceDir(a))
   const server = await startMockServer(collection, {
     port: a.port !== undefined ? Number(a.port) : 4010,
@@ -431,7 +431,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     if (cmd === 'run') return await cmdRun(a)
     if (cmd === 'mock') return await cmdMock(a)
     if (cmd === 'list' || cmd === 'ls') return cmdList(a)
-    throw new UsageError(`Comando desconhecido: ${cmd}. Veja postgirl --help`)
+    throw new UsageError(`Comando desconhecido: ${cmd}. Veja postwoman --help`)
   } catch (e: any) {
     console.error(c.red(e instanceof UsageError ? e.message : `Erro: ${e?.stack || e}`))
     return e instanceof UsageError ? 2 : 1
