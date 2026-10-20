@@ -84,8 +84,8 @@ O código de saída é `0` quando tudo passa e `1` quando algum teste ou requisi
 <summary>Exemplo com GitHub Actions</summary>
 
 ```yaml
-- uses: actions/checkout@v4
-- uses: actions/checkout@v4
+- uses: actions/checkout@v7
+- uses: actions/checkout@v7
   with: { repository: netoonine/postgirl, path: .postgirl }
 - run: cd .postgirl && npm ci && npm run build
 - run: node .postgirl/bin/postgirl.js run api/minha-api.postman_collection.json -e api/ci.postman_environment.json --env-var token=${{ secrets.API_TOKEN }} -r cli,junit --reporter-junit-export resultados.xml

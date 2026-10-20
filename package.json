@@ -41,7 +41,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "node --test test/e2e/",
+    "test:e2e": "node --test test/e2e/app.test.mjs",
     "test:server": "node test/server.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

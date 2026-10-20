@@ -14,8 +14,8 @@ jobs:
     name: Tipos, formatação e testes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -31,7 +31,7 @@ jobs:
           node bin/postgirl.js run test/fixtures/demo.postman_collection.json \
             -e test/fixtures/demo.postman_environment.json -d test/fixtures/demo-data.csv \
             -r cli,junit --reporter-junit-export reports/cli.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: relatorio-cli
@@ -41,8 +41,8 @@ jobs:
     name: E2E (app Electron)
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -51,7 +51,7 @@ jobs:
       - run: npm run test:e2e
         env:
           E2E_SCREENSHOTS: e2e-screenshots
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-screenshots
