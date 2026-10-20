@@ -65,7 +65,7 @@ jobs:
           ---
           Os instaladores ainda não são assinados. No macOS, se aparecer "danificado", rode `xattr -cr /Applications/Postgirl.app`. No Windows, no aviso do SmartScreen, clique em "Mais informações" → "Executar assim mesmo".
           TXT
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: artifacts/*
           body_path: notes.md
