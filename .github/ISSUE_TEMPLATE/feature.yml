@@ -1,0 +1,21 @@
+name: Ideia ou melhoria
+description: Sugira uma funcionalidade
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qual problema isso resolve
+      description: Conte o que você está tentando fazer hoje e onde trava.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Como você imagina
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribuição
+      options:
+        - label: Quero implementar isso (vou combinar a abordagem na issue antes)

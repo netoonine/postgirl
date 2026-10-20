@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Dúvidas e conversas
+    url: https://github.com/netoonine/postgirl/discussions
+    about: Perguntas de uso, ideias ainda cruas e ajuda para contribuir.
+  - name: Vulnerabilidade de segurança
+    url: https://github.com/netoonine/postgirl/security/advisories/new
+    about: Reporte em privado, não em issue pública.

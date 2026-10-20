@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      codemirror:
+        patterns: ['@codemirror/*', '@uiw/*']
+      postman:
+        patterns: ['postman-*', '@postman/*', 'openapi-to-postmanv2', 'curl-to-postmanv2']
+      tooling:
+        patterns: ['vite', 'vitest', 'electron-vite', 'electron-builder', 'typescript', 'prettier', '@vitejs/*', 'playwright-core']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,40 @@
+name: Bug
+description: Algo não funciona como deveria
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: O que aconteceu
+      description: E o que você esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Abra a coleção X
+        2. Envie a requisição Y
+        3. Veja o erro Z
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão do Postgirl
+      placeholder: 0.2.0 (menu Postgirl › Sobre)
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema
+      options: [macOS (Apple Silicon), macOS (Intel), Windows, Linux, CLI]
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Prints, logs ou coleção de exemplo
+      description: Tire tokens e dados sensíveis antes de colar.
