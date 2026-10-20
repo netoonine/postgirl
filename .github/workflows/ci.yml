@@ -31,7 +31,7 @@ jobs:
           node bin/postgirl.js run test/fixtures/demo.postman_collection.json \
             -e test/fixtures/demo.postman_environment.json -d test/fixtures/demo-data.csv \
             -r cli,junit --reporter-junit-export reports/cli.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: relatorio-cli
@@ -51,7 +51,7 @@ jobs:
       - run: npm run test:e2e
         env:
           E2E_SCREENSHOTS: e2e-screenshots
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-screenshots
